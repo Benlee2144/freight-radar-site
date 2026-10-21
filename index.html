@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Freight Radar</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--ink:#1c2230;--muted:#667085;--line:#e3e7ee;--nav:#13233f;--accent:#e8742c;--green:#137a45;--greenbg:#e3f5ea;--red:#b42318;--redbg:#fde8e6;--blue:#1d4ed8;--bluebg:#e6edff;--amber:#9a5b00;--amberbg:#fff1d6}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1420;--card:#172033;--ink:#e7ebf3;--muted:#98a2b3;--line:#263149;--nav:#0a1222;--greenbg:#12352a;--green:#5fd39a;--redbg:#3d1714;--red:#ff8a80;--bluebg:#16264d;--blue:#8fb0ff;--amberbg:#3a2a0b;--amber:#f5c26b}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+a{color:var(--blue)}button{font:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--nav);color:#fff;padding:10px 16px calc(8px) 16px;padding-top:max(10px,env(safe-area-inset-top))}
+header .top{display:flex;align-items:center;gap:10px}header h1{font-size:17px;margin:0;flex:1}header small{color:#b8c3d9;font-size:12px}
+header button{background:transparent;color:#cfd8ea;border:1px solid #3a4b6b;border-radius:8px;padding:5px 9px;font-size:13px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;background:#22355b;color:#dbe4f5;border:0;border-radius:999px;padding:7px 12px;font-size:13.5px;white-space:nowrap}
+.tabs button.on{background:var(--accent);color:#fff}.tabs .n{opacity:.75;margin-left:4px;font-size:12px}
+main{padding:12px 16px 40px;max-width:820px;margin:0 auto}
+.search{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-size:16px;margin-bottom:10px}
+.blurb{color:var(--muted);font-size:13px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.row{cursor:pointer}.row:active{opacity:.7}
+.name{font-weight:650;font-size:15.5px}.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.badge{display:inline-block;font-size:11.5px;font-weight:600;border-radius:999px;padding:2px 8px;margin:0 4px 2px 0;background:var(--line);color:var(--ink)}
+.b-green{background:var(--greenbg);color:var(--green)}.b-red{background:var(--redbg);color:var(--red)}.b-blue{background:var(--bluebg);color:var(--blue)}.b-amber{background:var(--amberbg);color:var(--amber)}
+.chips{margin-top:5px}.chip{display:inline-block;font-size:11.5px;border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin:0 4px 3px 0;color:var(--muted)}
+.heat{float:right;font-weight:700;font-size:13px;border-radius:8px;padding:3px 8px;background:var(--amberbg);color:var(--amber)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:var(--accent);color:#fff;border:0;border-radius:9px;padding:9px 13px;font-weight:600;font-size:14px}
+.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--line)}
+h2{font-size:15px;margin:2px 0 8px}ul{margin:0;padding-left:18px}li{margin:3px 0}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font-size:14px}.kv dt{color:var(--muted)}.kv dd{margin:0;overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:6px 6px 6px 0;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600}
+.scroll{overflow-x:auto}.pre{white-space:pre-wrap;font-size:14px;background:var(--bg);border-radius:8px;padding:10px;margin:6px 0}
+.back{background:none;border:0;color:var(--blue);padding:4px 0 10px;font-size:15px}
+.empty{color:var(--muted);text-align:center;padding:30px 10px}
+#lock{max-width:380px;margin:12vh auto 0;padding:0 16px}#lock .card{padding:20px}
+#lock input[type=password]{width:100%;padding:12px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);margin:10px 0}
+.err{color:var(--red);font-size:14px;min-height:20px}
+</style>
+</head>
+<body>
+<div id="lock"><div class="card"><h1 style="font-size:20px;margin:0 0 4px">Freight Radar</h1>
+  <p class="sub">Enter your website password.</p>
+  <form id="f"><input id="pw" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Password">
+  <label class="sub"><input type="checkbox" id="remember" checked> Remember on this device</label>
+  <div class="err" id="err"></div><button class="btn" style="width:100%;justify-content:center;margin-top:6px" id="go">Open</button></form></div></div>
+<div id="app" hidden>
+  <header><div class="top"><h1>Freight Radar</h1><small id="updated"></small><button id="out">Lock</button></div><div class="tabs" id="tabs"></div></header>
+  <main id="main"></main>
+</div>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = n => n == null ? '' : n >= 1e6 ? '$' + (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M' : n >= 1e3 ? '$' + Math.round(n / 1e3) + 'K' : '$' + Math.round(n);
+const tel = p => p ? `<a class="btn" href="tel:${esc(String(p).replace(/[^0-9+]/g, ''))}">📞 ${esc(p)}</a>` : '';
+const mail = e => e ? `<a class="btn ghost" href="mailto:${esc(e)}">✉️ ${esc(e)}</a>` : '';
+const chips = a => (a || []).length ? `<div class="chips">${a.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : '';
+const fmtDay = iso => { const d = new Date(String(iso).slice(0, 10) + 'T12:00'); return isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); };
+let DATA = null, TAB = 'today', Q = '';
+
+// ---------- unlocking ----------
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+// gzip unpacking for phones whose browser has no DecompressionStream (older iPhones)
+const LB = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258];
+const LE = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0];
+const DB = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577];
+const DE = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
+const ORDER = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+function gunzip(buf) {
+  if (buf[0] !== 0x1f || buf[1] !== 0x8b) throw new Error('not gzip');
+  const flg = buf[3]; let p = 10;
+  if (flg & 4) p += 2 + (buf[p] | (buf[p + 1] << 8));
+  if (flg & 8) while (buf[p++]);
+  if (flg & 16) while (buf[p++]);
+  if (flg & 2) p += 2;
+  let out = new Uint8Array(buf.length * 6), n = 0, bb = 0, bc = 0;
+  const bits = k => { while (bc < k) { bb |= buf[p++] << bc; bc += 8; } const v = bb & ((1 << k) - 1); bb >>>= k; bc -= k; return v; };
+  const put = b => { if (n === out.length) { const o = new Uint8Array(out.length * 2); o.set(out); out = o; } out[n++] = b; };
+  const table = lens => {
+    const count = new Uint16Array(16), sym = new Uint16Array(lens.length), offs = new Uint16Array(16);
+    lens.forEach(l => { count[l]++; }); count[0] = 0;
+    for (let i = 1; i < 16; i++) offs[i] = offs[i - 1] + count[i - 1];
+    lens.forEach((l, s) => { if (l) sym[offs[l]++] = s; });
+    return { count, sym };
+  };
+  const decode = t => {
+    let code = 0, first = 0, index = 0;
+    for (let len = 1; len < 16; len++) {
+      code |= bits(1);
+      const c = t.count[len];
+      if (code - c < first) return t.sym[index + (code - first)];
+      index += c; first += c; first <<= 1; code <<= 1;
+    }
+    throw new Error('bad data');
+  };
+  let last;
+  do {
+    last = bits(1);
+    const type = bits(2);
+    if (type === 0) {
+      bb = 0; bc = 0;
+      const len = buf[p] | (buf[p + 1] << 8); p += 4;
+      for (let i = 0; i < len; i++) put(buf[p++]);
+    } else if (type === 1 || type === 2) {
+      let lit, dist;
+      if (type === 1) {
+        const l = new Array(288).fill(8).fill(9, 144, 256).fill(7, 256, 280);
+        lit = table(l); dist = table(new Array(30).fill(5));
+      } else {
+        const hlit = bits(5) + 257, hdist = bits(5) + 1, hclen = bits(4) + 4, cl = new Array(19).fill(0);
+        for (let i = 0; i < hclen; i++) cl[ORDER[i]] = bits(3);
+        const ct = table(cl), lens = [];
+        while (lens.length < hlit + hdist) {
+          const sy = decode(ct);
+          if (sy < 16) lens.push(sy);
+          else if (sy === 16) { const prev = lens[lens.length - 1]; for (let r = 3 + bits(2); r > 0; r--) lens.push(prev); }
+          else for (let r = sy === 17 ? 3 + bits(3) : 11 + bits(7); r > 0; r--) lens.push(0);
+        }
+        lit = table(lens.slice(0, hlit)); dist = table(lens.slice(hlit));
+      }
+      for (;;) {
+        const sy = decode(lit);
+        if (sy < 256) put(sy);
+        else if (sy === 256) break;
+        else {
+          const i = sy - 257, len = LB[i] + bits(LE[i]), d = decode(dist), off = DB[d] + bits(DE[d]);
+          for (let k = 0; k < len; k++) put(out[n - off]);
+        }
+      }
+    } else throw new Error('bad data');
+  } while (!last);
+  return out.subarray(0, n);
+}
+async function unpack(plain) {
+  if (typeof DecompressionStream === 'function') {
+    try { return await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); } catch { /* fall through */ }
+  }
+  return new TextDecoder().decode(gunzip(new Uint8Array(plain)));
+}
+let BOX = null;
+async function decryptWith(pw) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(BOX.salt), iterations: BOX.iter, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(BOX.iv) }, key, b64(BOX.ct));
+}
+const clean = pw => String(pw || '').trim().replace(/^[`'"*\s]+|[`'"*\s]+$/g, '');
+async function unlock(typed, remember) {
+  const err = $('#err');
+  if (!window.crypto || !crypto.subtle) { err.textContent = "This browser can't open locked pages. Open the link in Safari or Chrome (not inside another app)."; return; }
+  err.textContent = 'Opening...';
+  try { BOX = await (await fetch('data.json', { cache: 'no-store' })).json(); } catch { err.textContent = "Couldn't load the site. Check your connection and try again."; return; }
+  const pw = clean(typed);
+  let plain = null, used = pw;
+  for (const tryPw of [...new Set([pw, pw.toLowerCase()])]) {  // phones like to capitalize the first letter
+    try { plain = await decryptWith(tryPw); used = tryPw; break; } catch { /* try the next spelling */ }
+  }
+  if (!plain) { err.textContent = 'Wrong password. Check for typos and extra spaces.'; try { localStorage.removeItem('fr_pw'); } catch {} return; }
+  try { DATA = JSON.parse(await unpack(plain)); } catch { err.textContent = 'The password is right, but this browser could not unpack the data. Update your phone or try Chrome.'; return; }
+  try { if (remember) localStorage.setItem('fr_pw', used); } catch {}
+  $('#lock').hidden = true; $('#app').hidden = false;
+  $('#updated').textContent = 'Updated ' + new Date(DATA.generated).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  route();
+}
+$('#f').onsubmit = e => { e.preventDefault(); unlock($('#pw').value, $('#remember').checked); };
+$('#out').onclick = () => { try { localStorage.removeItem('fr_pw'); } catch {} location.hash = ''; location.reload(); };
+
+// ---------- lists ----------
+const KIND = { followup: ['Follow-up', 'b-blue'], watch: ['Watched', 'b-blue'], customer: ['Your customer', 'b-green'], down: ['Carrier down', 'b-red'],
+  risk: ['Carrier at risk', 'b-amber'], broker: ['Broker down', 'b-red'], signal: ['Signal', 'b-blue'], fleet: ['Own fleet down', 'b-red'],
+  usda: ['USDA loads', 'b-green'], usda_next: ['USDA coming up', 'b-green'], federal: ['Federal contract', 'b-green'],
+  seasonal: ['Season coming', 'b-amber'], forwarder: ['Freight forwarder', 'b-blue'] };
+const TABS = [
+  ['today', 'Today', () => DATA.today],
+  ['down', 'Carrier down', () => DATA.hot.down],
+  ['risk', 'About to go down', () => DATA.hot.risk],
+  ['fleets', 'Own fleet down', () => DATA.hot.fleets],
+  ['usda_next', 'USDA coming up', () => DATA.lists.usda_next],
+  ['usda', 'USDA loads', () => DATA.lists.usda],
+  ['federal', 'Federal contracts', () => DATA.lists.federal],
+  ['seasonal', 'Salt & gravel', () => DATA.lists.seasonal],
+  ['forwarder', 'Forwarders', () => DATA.lists.forwarder],
+  ['pipeline', 'Pipeline', () => DATA.pipeline],
+];
+const BLURB = {
+  today: 'Your call list for today: follow-ups first, then the hottest new leads.',
+  down: 'Shippers whose carrier was just shut down. They need trucks now.',
+  risk: "Shippers whose carrier is about to be suspended (insurance cancelled).",
+  fleets: 'Companies whose own trucks were shut down: they need carriers now.',
+  usda_next: 'Win the same USDA product around the same month every year. Call before the award.',
+  usda: 'Food companies that must ship USDA truckloads (they book every truck).',
+  federal: 'Won federal contracts for truckable goods; most are priced delivered.',
+  seasonal: 'Road salt and stone/gravel shippers, before their busy season.',
+  forwarder: 'Verified freight forwarders: they buy trucking for their domestic legs.',
+  pipeline: 'Your accounts by status and next touch.',
+};
+const nameOf = r => r.display || r.name || r.key;
+function rowHtml(tab, r) {
+  if (tab === 'today') {
+    const k = KIND[r.kind] || [r.kind, ''];
+    return `<div class="name">${esc(nameOf(r))}</div><div><span class="badge ${k[1]}">${esc(k[0])}</span><span class="sub">${esc(r.why || '')}</span></div>
+      <div class="sub">${esc(r.reason || '')}</div>${chips(r.top_states)}${r.contact && r.contact.phone ? `<div class="sub">📞 ${esc(r.contact.phone)}${r.contact.name ? ' · ' + esc(r.contact.name) : ''}</div>` : ''}`;
+  }
+  if (tab === 'down' || tab === 'risk') {
+    return `${r.heat != null ? `<span class="heat">${r.heat}</span>` : ''}<div class="name">${esc(nameOf(r))}</div>
+      <div class="sub">${esc((r.reasons || [])[0] || '')}</div>${chips(r.top_states)}
+      <div class="sub">${esc(r.equipment || '')}${r.spend ? ' · ~' + money(r.spend.mid) + '/yr' : ''}${r.status ? ' · ' + esc(r.status) : ''}</div>`;
+  }
+  if (tab === 'fleets') return `<div class="name">${esc(nameOf(r))}</div><div class="sub">${esc(r.city || '')}, ${esc(r.state || '')} · ${r.power_units || '?'} trucks</div>${r.phone ? `<div class="sub">📞 ${esc(r.phone)}</div>` : ''}`;
+  if (tab === 'pipeline') return `<div class="name">${esc(nameOf(r))}</div><div><span class="badge b-blue">${esc(r.status || '')}</span><span class="sub">${esc((r.step || {}).label || '')}</span></div><div class="sub">${r.follow_up ? 'Next touch ' + fmtDay(r.follow_up) : ''}</div>`;
+  const f = r.facts || {};
+  let mid = '';
+  if (tab === 'usda_next') { const p = (f.patterns || [])[0] || {}; mid = `<b>${esc(p.product || '')}</b> around ${esc(p.label || '')} (${(p.years || []).join(', ')}) · ~${p.avg_loads || '?'} loads · next ${esc((p.expected || '').slice(0, 7))}`; }
+  else if (tab === 'usda') mid = `<b>${f.deliveries} loads</b> to ship${f.reefer ? ' · reefer' : ''}`;
+  else if (tab === 'federal') { const a = (f.awards || [])[0] || {}; mid = `<b>${esc(a.agency || '')}</b>: ${esc(a.product || '')} · ${money(f.total)}`; }
+  else if (tab === 'seasonal') mid = `<b>${esc(f.label || '')}</b> · busiest ${esc(f.peak_label || '')} · ${f.loads} loads${f.in_season ? ' · in season now' : ''}`;
+  else if (tab === 'forwarder') mid = `<span class="badge b-green">Verified</span> ${esc(f.kind || '')}${chips(f.services)}`;
+  return `<div class="name">${esc(nameOf(r))}</div><div class="sub">${esc(r.city || '')}${r.state ? ', ' + esc(r.state) : ''}</div><div class="sub">${mid}</div>
+    ${r.phone ? `<div class="sub">📞 ${esc(r.phone)}${r.contact ? ' · ' + esc(r.contact) : ''}</div>` : ''}`;
+}
+function renderTabs() {
+  $('#tabs').innerHTML = TABS.map(([k, l, get]) => `<button data-t="${k}" class="${k === TAB ? 'on' : ''}">${l}<span class="n">${(get() || []).length}</span></button>`).join('');
+  $('#tabs').querySelectorAll('button').forEach(b => { b.onclick = () => { TAB = b.dataset.t; Q = ''; location.hash = '#' + TAB; }; });
+  const on = $('#tabs .on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+function renderList() {
+  renderTabs();
+  const all = (TABS.find(t => t[0] === TAB) || TABS[0])[2]() || [];
+  const m = $('#main');
+  m.innerHTML = `<input class="search" type="search" placeholder="Search ${all.length} companies..." value="${esc(Q)}"><p class="blurb">${esc(BLURB[TAB] || '')}</p><div id="rows"></div>`;
+  const draw = () => {
+    const q = Q.toLowerCase();
+    const rows = all.filter(r => !q || nameOf(r).toLowerCase().includes(q)).slice(0, 300);
+    $('#rows').innerHTML = rows.length ? rows.map((r, i) => `<div class="card row" data-i="${i}">${rowHtml(TAB, r)}</div>`).join('') : '<div class="empty">Nothing here.</div>';
+    $('#rows').querySelectorAll('.row').forEach(el => { el.onclick = () => { location.hash = '#lead=' + encodeURIComponent(rows[+el.dataset.i].key); }; });
+  };
+  const s = m.querySelector('.search');
+  s.oninput = () => { Q = s.value; draw(); };
+  draw();
+}
+
+// ---------- a lead ----------
+function section(title, body) { return body ? `<div class="card"><h2>${title}</h2>${body}</div>` : ''; }
+function renderLead(key) {
+  const d = DATA.leads[key];
+  const m = $('#main');
+  renderTabs();
+  if (!d) { m.innerHTML = `<button class="back">‹ Back</button><div class="empty">This lead isn't in today's snapshot. It's in the app on your computer.</div>`; m.querySelector('.back').onclick = () => history.back(); return; }
+  const f = d.facts || {}, crm = d.crm || {}, who = d.who || {}, talk = d.talk || {};
+  const phones = [crm.contact_phone, d.phone, ...(who.lines || []).map(l => l.phone)].filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 2);
+  const head = `<button class="back">‹ Back</button><div class="card">${d.heat != null ? `<span class="heat">${d.heat}</span>` : ''}
+    <div class="name" style="font-size:18px">${esc(d.display)}</div><div class="sub">${esc(d.source_label || (d.kind === 'shipper' ? 'Shipper' : ''))}${crm.status ? ' · ' + esc(crm.status) : ''}</div>
+    <div class="sub">${esc([d.address, d.city, d.state].filter(Boolean).join(', '))}</div>${chips(d.top_states)}
+    <div class="actions">${phones.map(tel).join('')}${mail(crm.contact_email || d.email || ((who.emails || [])[0] || {}).email)}</div></div>`;
+  const why = (d.reasons || []).length ? `<ul>${d.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : '';
+  const ppl = (who.people || []).map(p => `<tr><td><b>${esc(p.name || '-')}</b><div class="sub">${esc(p.title || '')}</div><div class="sub">${esc(p.source)}</div></td>
+    <td>${p.phone ? `<a href="tel:${esc(p.phone.replace(/[^0-9+]/g, ''))}">${esc(p.phone)}</a>` : ''}${p.email ? `<div><a href="mailto:${esc(p.email)}">${esc(p.email)}</a>${p.email_status === 'format' || p.email_status === 'guess' ? ' <span class="badge">guess</span>' : ''}</div>` : ''}</td></tr>`).join('');
+  const lines = (who.lines || []).map(l => `<li><a href="tel:${esc(l.phone.replace(/[^0-9+]/g, ''))}">${esc(l.phone)}</a> <span class="sub">${esc(l.label)}</span></li>`).join('');
+  const mails = (who.emails || []).map(e => `<li><a href="mailto:${esc(e.email)}">${esc(e.email)}</a> <span class="sub">${esc(e.label)}</span></li>`).join('');
+  const whoHtml = (ppl ? `<div class="scroll"><table>${ppl}</table></div>` : '') + (lines ? `<p class="sub" style="margin:8px 0 2px">Direct lines</p><ul>${lines}</ul>` : '') + (mails ? `<p class="sub" style="margin:8px 0 2px">Emails</p><ul>${mails}</ul>` : '');
+  const script = (talk.opener ? `<div class="pre">${esc(talk.opener)}</div>` : '') + (talk.voicemail ? `<p class="sub">Voicemail</p><div class="pre">${esc(talk.voicemail)}</div>` : '')
+    + (talk.email ? `<p class="sub">Email: ${esc(talk.email_subject || '')}</p><div class="pre">${esc(talk.email)}</div>` : '');
+  const usda = (d.usda || []).length ? `<div class="scroll"><table><tr><th>To</th><th>Loads</th><th>Window</th><th>Miles</th><th>$/load</th></tr>${d.usda.map(r => `<tr><td>${esc(r.dest)}</td><td>${r.loads}</td><td>${esc(fmtDay(r.start))}–${esc(fmtDay(r.end))}</td><td>${r.miles || '?'}</td><td>${money(r.per_load)}</td></tr>`).join('')}</table></div>` : '';
+  const hist = d.usda_history && (d.usda_history.patterns || []).length ? `<ul>${d.usda_history.patterns.map(p => `<li><b>${esc(p.product)}</b> around ${esc(p.label)} (${p.years.join(', ')}), ~${p.avg_loads} loads. Next likely ${esc(fmtDay(p.expected))}.</li>`).join('')}</ul>` : '';
+  const fed = (f.awards || []).length && d.source === 'federal' ? `<ul>${f.awards.slice(0, 8).map(a => `<li><b>${esc(a.agency)}</b>: ${esc(a.product)} · ${money(a.amount)} · ${esc(fmtDay(a.start))}–${esc(fmtDay(a.end))}${a.place ? ' · ' + esc(a.place) : ''}</li>`).join('')}</ul>` : '';
+  const checks = (f.checks || []).length ? `<ul style="list-style:none;padding:0">${f.checks.map(c => `<li>${c.ok ? '✅' : '❌'} ${esc(c.label)}</li>`).join('')}</ul>${f.website ? `<a class="btn ghost" href="https://${esc(f.website)}" target="_blank" rel="noopener noreferrer">${esc(f.website)}</a>` : ''}` : '';
+  const links = Object.entries(d.research || {}).map(([l, u]) => `<a class="btn ghost" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(l)}</a>`).join('');
+  const notes = (d.notes || []).length ? `<ul>${d.notes.map(n => `<li>${esc(n.text)} <span class="sub">${esc(fmtDay(n.ts))}</span></li>`).join('')}</ul>` : '';
+  m.innerHTML = head + section('Why this lead', why) + section('Who to call', whoHtml) + section('What to say', script)
+    + section('USDA loads they must ship', usda) + section('USDA award history', hist) + section('Federal contracts', fed)
+    + section('Verified', checks) + section('Your notes', notes) + section('Research', links ? `<div class="actions">${links}</div>` : '');
+  m.querySelector('.back').onclick = () => history.back();
+  window.scrollTo(0, 0);
+}
+
+// ---------- routing (the phone's back button works) ----------
+function route() {
+  if (!DATA) return;
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h.startsWith('lead=')) return renderLead(h.slice(5));
+  if (TABS.some(t => t[0] === h)) TAB = h;
+  renderList();
+}
+window.addEventListener('hashchange', route);
+(function start() {
+  let pw = null;
+  try { pw = localStorage.getItem('fr_pw'); } catch {}
+  if (pw) unlock(pw, true);
+})();
+</script>
+</body>
+</html>
