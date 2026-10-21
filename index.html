@@ -1,0 +1,1388 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#06080c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Freight Radar">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Freight Radar</title>
+<script>try{var t=localStorage.getItem('fr_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+/* Freight Radar site. Dark by default; [data-theme=light] flips the tokens. */
+:root{
+  --bg:#06080c;--bg2:#0a0d13;--s1:#0e1219;--s2:#141a24;--s3:#1c2431;
+  --line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.14);
+  --tx:#f2f5f9;--tx2:#a9b3c4;--tx3:#7c889b;
+  --ac:#ff7a1a;--ac2:#ff9a4d;--acbg:rgba(255,122,26,.14);--acln:rgba(255,122,26,.4);--onac:#190b00;
+  --ok:#2fd695;--okbg:rgba(47,214,149,.13);--bad:#ff5a6e;--badbg:rgba(255,90,110,.14);
+  --warn:#ffb72b;--warnbg:rgba(255,183,43,.13);--info:#6aadff;--infobg:rgba(106,173,255,.13);
+  --glass:rgba(8,10,15,.78);--shadow:0 24px 60px rgba(0,0,0,.6);--r:14px;--r2:10px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:dark}
+:root[data-theme=light]{
+  --bg:#f3f4f7;--bg2:#e9ebf0;--s1:#fff;--s2:#fff;--s3:#f1f3f7;
+  --line:rgba(11,17,28,.09);--line2:rgba(11,17,28,.18);
+  --tx:#0b111c;--tx2:#485366;--tx3:#6d7889;
+  --ac:#d35400;--ac2:#b04300;--acbg:rgba(211,84,0,.1);--acln:rgba(211,84,0,.38);--onac:#fff;
+  --ok:#0a8a58;--okbg:rgba(10,138,88,.1);--bad:#cf2740;--badbg:rgba(207,39,64,.09);
+  --warn:#9a6200;--warnbg:rgba(154,98,0,.11);--info:#1c68cc;--infobg:rgba(28,104,204,.09);
+  --glass:rgba(243,244,247,.82);--shadow:0 24px 60px rgba(11,17,28,.16);color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;min-height:100dvh;-webkit-tap-highlight-color:transparent}
+a{color:inherit;text-decoration:none}button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+h1,h2,h3,p{margin:0}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}.mono{font-family:var(--mono);font-size:.92em}
+.lbl{font-size:11px;font-weight:650;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
+.ic{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- lock screen ---------- */
+#lock{position:fixed;top:0;right:0;bottom:0;left:0;z-index:50;display:grid;place-items:center;padding:24px 20px;overflow:auto;
+  background:radial-gradient(900px 600px at 50% -10%,rgba(255,122,26,.13),transparent 60%),var(--bg)}
+.lockbox{width:100%;max-width:360px;text-align:center}
+.radar{position:relative;width:168px;height:168px;margin:0 auto 26px;border-radius:50%;
+  background:repeating-radial-gradient(circle,transparent 0 27px,var(--line2) 27px 28px),radial-gradient(circle,rgba(255,122,26,.1),transparent 70%);
+  box-shadow:0 0 0 1px var(--line2),0 0 80px rgba(255,122,26,.18)}
+.radar:before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0 78%,rgba(255,122,26,.05) 82%,rgba(255,122,26,.55) 100%);animation:sweep 3.2s linear infinite}
+.radar:after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px;border-radius:50%;background:var(--ac);box-shadow:0 0 14px var(--ac)}
+.radar i{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--ac2);opacity:0;animation:blip 3.2s ease-out infinite}
+.radar i:nth-child(1){left:68%;top:27%;animation-delay:.35s}.radar i:nth-child(2){left:24%;top:38%;animation-delay:2.5s}.radar i:nth-child(3){left:58%;top:74%;animation-delay:1.4s}
+@keyframes sweep{to{transform:rotate(360deg)}}
+@keyframes blip{0%{opacity:0;transform:scale(.4)}8%{opacity:1;transform:scale(1.5);box-shadow:0 0 12px var(--ac)}60%,100%{opacity:0;transform:scale(1)}}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em;font-size:17px}
+.brand svg{width:22px;height:22px;flex:none}
+.lockbox .brand{justify-content:center;font-size:24px;margin-bottom:6px}.lockbox .brand svg{display:none}
+.lockbox .tag{color:var(--tx2);margin-bottom:24px}
+.field{width:100%;height:50px;padding:0 16px;border-radius:12px;border:1px solid var(--line2);background:var(--s1);font-size:16px;outline:0;transition:border-color .15s,box-shadow .15s}
+.field:focus{border-color:var(--ac);box-shadow:0 0 0 4px var(--acbg)}
+.check{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 4px;color:var(--tx2);font-size:14px}
+.check input{width:17px;height:17px;accent-color:var(--ac)}
+.err{min-height:22px;margin:8px 0;color:var(--bad);font-size:14px}.err.info{color:var(--tx2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 18px;border-radius:12px;font-weight:650;font-size:15px;
+  background:var(--ac);color:var(--onac);transition:transform .12s,filter .15s,background .15s;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:scale(.97)}
+.btn.block{width:100%}.btn.ghost{background:var(--s2);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line2)}
+.btn.sm{height:36px;padding:0 12px;font-size:13.5px;border-radius:10px}
+.fine{margin-top:22px;color:var(--tx3);font-size:12.5px;line-height:1.5}
+
+/* ---------- shell ---------- */
+#app{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh;min-height:100dvh}
+#side{display:none}
+#top{position:sticky;top:0;z-index:20;background:var(--glass);-webkit-backdrop-filter:saturate(170%) blur(18px);backdrop-filter:saturate(170%) blur(18px);
+  border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.bar{display:flex;align-items:center;gap:6px;height:54px;padding:0 10px 0 16px}
+.bar .brand{flex:1;min-width:0;white-space:nowrap}.live .wide{display:none}
+.live{display:flex;align-items:center;gap:7px;color:var(--tx2);font-size:12.5px;white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(47,214,149,.5);animation:pulse 2.4s infinite}
+.dot.off{background:var(--warn);animation:none}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(47,214,149,0)}100%{box-shadow:0 0 0 0 rgba(47,214,149,0)}}
+.iconbtn{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;color:var(--tx2);transition:background .15s,color .15s}
+.iconbtn:hover{background:var(--s2);color:var(--tx)}
+#tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 12px 10px;scrollbar-width:none;scroll-padding:0 40px}
+#tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;display:flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:999px;color:var(--tx2);font-size:13.5px;font-weight:550;white-space:nowrap;transition:background .15s,color .15s}
+.tab:hover{background:var(--s2);color:var(--tx)}
+.tab .n{font-size:11.5px;font-weight:650;color:var(--tx3);font-variant-numeric:tabular-nums}
+.tab.on{background:var(--tx);color:var(--bg)}.tab.on .n{color:inherit;opacity:.6}
+.tab .hot{width:6px;height:6px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
+#main{padding:16px 14px calc(56px + env(safe-area-inset-bottom));max-width:860px;width:100%;margin:0 auto}
+.fade{animation:fade .22s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+
+/* ---------- headings, controls ---------- */
+.head{margin:4px 2px 14px}.head h1{font-size:23px;letter-spacing:-.025em;font-weight:720;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.head h1 small{font-size:13px;font-weight:550;color:var(--tx3);letter-spacing:0}
+.head p{color:var(--tx2);margin-top:5px;font-size:14px;max-width:62ch}
+.tools{display:flex;gap:8px;margin-bottom:10px}.filters{overflow-x:auto;scrollbar-width:none;margin:0 -14px 12px;padding:0 14px}.filters::-webkit-scrollbar{display:none}.filters>*{flex:none}.filters:empty{display:none}
+.search{flex:1 1 200px;position:relative;min-width:0}
+.search .ic{position:absolute;left:12px;top:50%;margin-top:-9px;color:var(--tx3);pointer-events:none}
+.search input{width:100%;height:42px;padding:0 12px 0 38px;border-radius:11px;border:1px solid var(--line);background:var(--s1);font-size:16px;outline:0}
+.search input:focus{border-color:var(--acln);box-shadow:0 0 0 4px var(--acbg)}
+#fq::-webkit-search-cancel-button{-webkit-appearance:none}
+.sel{height:38px;padding:0 30px 0 12px;border-radius:11px;border:1px solid var(--line);background:var(--s1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%237c889b' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 11px center;-webkit-appearance:none;appearance:none;font-size:14px;max-width:46vw}
+.pill{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:11px;border:1px solid var(--line);background:var(--s1);font-size:14px;color:var(--tx2);white-space:nowrap}
+.pill.on{border-color:var(--acln);background:var(--acbg);color:var(--ac2)}
+.pill b{font-weight:650;font-variant-numeric:tabular-nums}
+
+/* ---------- rows ---------- */
+.list{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 12px 13px 14px;border-top:1px solid var(--line);cursor:pointer;
+  content-visibility:auto;contain-intrinsic-size:auto 86px;transition:background .12s}
+.row:first-child{border-top:0}.row:hover{background:var(--s2)}.row:active{background:var(--s3)}
+.row.cur{background:var(--s2);box-shadow:inset 3px 0 0 var(--ac)}
+.row.done .nm,.row.done .meta,.row.done .why{opacity:.5}
+.nm{font-weight:650;font-size:15.5px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{color:var(--tx2);font-size:13px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.why{color:var(--tx2);font-size:13px;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;height:21px;padding:0 8px;border-radius:6px;font-size:11.5px;font-weight:620;background:var(--s3);color:var(--tx2);white-space:nowrap}
+.chip.bad{background:var(--badbg);color:var(--bad)}.chip.warn{background:var(--warnbg);color:var(--warn)}
+.chip.ok{background:var(--okbg);color:var(--ok)}.chip.info{background:var(--infobg);color:var(--info)}.chip.ac{background:var(--acbg);color:var(--ac2)}
+.chip.st{background:none;box-shadow:inset 0 0 0 1px var(--line2);color:var(--tx3);font-weight:600;padding:0 6px}
+.ring{--v:0;--c:var(--tx3);position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:720;font-size:14px;font-variant-numeric:tabular-nums;
+  background:conic-gradient(var(--c) calc(var(--v)*1%),var(--s3) 0)}
+.ring:before{content:"";position:absolute;top:3.5px;right:3.5px;bottom:3.5px;left:3.5px;border-radius:50%;background:var(--s1)}.ring span{position:relative}
+.row:hover .ring:before,.row.cur .ring:before{background:var(--s2)}
+.ring.h3{--c:var(--bad)}.ring.h2{--c:var(--ac)}.ring.h1{--c:var(--warn)}
+.glyph{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--s3);color:var(--tx2);font-size:12px;font-weight:700;letter-spacing:.02em}
+.glyph.ac{background:var(--acbg);color:var(--ac2)}.glyph.ok{background:var(--okbg);color:var(--ok)}.glyph.bad{background:var(--badbg);color:var(--bad)}.glyph.info{background:var(--infobg);color:var(--info)}.glyph.warn{background:var(--warnbg);color:var(--warn)}
+.call{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--acbg);color:var(--ac2);transition:transform .12s,background .15s}
+.call:hover{background:var(--ac);color:var(--onac)}.call:active{transform:scale(.92)}
+.more{display:block;width:100%;padding:14px;text-align:center;color:var(--tx3);font-size:13px}
+.empty{padding:44px 20px;text-align:center;color:var(--tx3)}
+.skel{height:86px;border-top:1px solid var(--line);background:linear-gradient(100deg,transparent 30%,var(--s2) 50%,transparent 70%) 0 0/200% 100%;animation:shim 1.2s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+
+/* ---------- home ---------- */
+.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:6px 2px 16px}
+.hero h1{font-size:27px;letter-spacing:-.03em;font-weight:740;line-height:1.1;margin-top:5px}
+.feat{position:relative;overflow:hidden;border-radius:18px;border:1px solid var(--acln);padding:18px;margin-bottom:12px;cursor:pointer;
+  background:radial-gradient(520px 260px at 100% 0,rgba(255,122,26,.2),transparent 65%),var(--s1)}
+.feat h2{font-size:18px;letter-spacing:-.02em;margin:9px 0 3px}.feat p{color:var(--tx2);font-size:13.5px;max-width:46ch}
+.big{font-size:44px;font-weight:760;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:14px;font-weight:600;letter-spacing:0;color:var(--tx2);margin-left:8px}
+.featgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px}
+.bars{display:grid;gap:7px}.barrow{display:grid;grid-template-columns:148px 1fr 34px;gap:9px;align-items:center;font-size:12.5px;color:var(--tx2)}
+.barrow i{display:block;height:6px;border-radius:3px;background:var(--s3);overflow:hidden}.barrow i b{display:block;height:100%;border-radius:3px;background:var(--ac)}
+.barrow span:last-child{text-align:right;color:var(--tx);font-weight:620;font-variant-numeric:tabular-nums}
+.map{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;max-width:330px}
+.map b{aspect-ratio:1;min-height:22px;display:grid;place-items:center;border-radius:5px;font-size:9px;font-weight:650;color:var(--tx3);background:var(--s3)}
+.map b[data-n]{cursor:pointer;color:var(--tx)}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:14px;border-radius:var(--r);border:1px solid var(--line);background:var(--s1);cursor:pointer;transition:border-color .15s,transform .12s,background .15s;text-align:left}
+.tile:hover{border-color:var(--line2);background:var(--s2)}.tile:active{transform:scale(.98)}
+.tile .v{font-size:26px;font-weight:740;letter-spacing:-.03em;margin-top:6px;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px}
+.tile .v small{font-size:12px;font-weight:650;letter-spacing:0;color:var(--ok)}
+.tile .d{color:var(--tx3);font-size:12.5px;margin-top:2px;line-height:1.35}
+.sub{display:flex;align-items:baseline;justify-content:space-between;margin:0 2px 10px}.sub h2{font-size:17px;letter-spacing:-.02em}
+
+/* ---------- lead pane ---------- */
+#pane{position:fixed;top:0;right:0;bottom:0;left:0;z-index:30;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  transform:translateX(102%);transition:transform .26s cubic-bezier(.2,.8,.2,1);visibility:hidden}
+#pane.open{transform:none;visibility:visible}
+.phead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:4px;height:calc(54px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 8px 0 4px;
+  background:var(--glass);-webkit-backdrop-filter:saturate(170%) blur(18px);backdrop-filter:saturate(170%) blur(18px);border-bottom:1px solid var(--line)}
+.phead b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.pbody{padding:16px 14px calc(110px + env(safe-area-inset-bottom));max-width:720px;margin:0 auto}
+.title{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;margin-bottom:14px}
+.title h2{font-size:24px;letter-spacing:-.03em;line-height:1.15;font-weight:740}
+.title .meta{white-space:normal;margin-top:5px}
+.ring.lg{width:58px;height:58px;font-size:18px}.ring.lg:before{top:4.5px;right:4.5px;bottom:4.5px;left:4.5px;background:var(--bg)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px}.acts .btn{flex:1 1 auto}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-top:12px}
+.card>.lbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.why-li{position:relative;padding:0 0 9px 16px;color:var(--tx);font-size:14.5px;line-height:1.5}
+.why-li:before{content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;border-radius:50%;background:var(--ac)}
+.why-li:last-child{padding-bottom:0}.why-li+.why-li{color:var(--tx2)}
+.tl{position:relative;padding:0 0 16px 22px}
+.tl:before{content:"";position:absolute;left:5px;top:16px;bottom:-2px;width:1px;background:var(--line2)}.tl:last-child{padding-bottom:0}.tl:last-child:before{display:none}
+.tl:after{content:"";position:absolute;left:1px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--s1);box-shadow:inset 0 0 0 2px var(--ac)}
+.tl .when{font-weight:650;font-size:14.5px}.tl .v{color:var(--tx2);font-size:13.5px;margin-top:4px;line-height:1.45}
+.tl .rec{color:var(--tx3);font-size:12.5px;margin-top:5px}.tl .rec a{color:var(--info)}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}.kv div b{display:block;font-size:16px;font-weight:680;font-variant-numeric:tabular-nums;margin-top:1px}
+.person{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.person:first-of-type{border-top:0;padding-top:0}.person .t{color:var(--tx2);font-size:13px}.person .s{color:var(--tx3);font-size:12px;margin-top:1px}
+.person .go{display:flex;gap:6px}
+.lnk{color:var(--info);overflow-wrap:anywhere}
+.seg{display:flex;gap:3px;padding:3px;border-radius:11px;background:var(--s3);margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:1;height:32px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:600;color:var(--tx2);white-space:nowrap}
+.seg button.on{background:var(--s1);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.script{white-space:pre-wrap;font-size:15px;line-height:1.55;color:var(--tx)}
+.qa{padding:10px 0;border-top:1px solid var(--line)}.qa:first-child{border-top:0;padding-top:0}.qa b{display:block;margin-bottom:3px}.qa span{color:var(--tx2)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}.tbl th{text-align:left;color:var(--tx3);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:0 8px 7px 0}
+.tbl td{padding:8px 8px 8px 0;border-top:1px solid var(--line);vertical-align:top}.scroll{overflow-x:auto}
+.checkli{display:flex;gap:9px;padding:5px 0;font-size:14px}.checkli .ic{margin-top:1px}.checkli.y .ic{color:var(--ok)}.checkli.n .ic{color:var(--bad)}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:3;display:flex;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:var(--glass);-webkit-backdrop-filter:saturate(170%) blur(18px);backdrop-filter:saturate(170%) blur(18px);border-top:1px solid var(--line)}
+.dock .btn{flex:1}.dock .btn.ghost{flex:0 0 auto}
+.blank{display:none}
+
+/* ---------- overlays ---------- */
+#find{position:fixed;top:0;right:0;bottom:0;left:0;z-index:40;background:var(--bg);display:flex;flex-direction:column}
+#find .fbar{display:flex;gap:6px;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 8px 8px 12px;border-bottom:1px solid var(--line)}
+#find input{flex:1;height:44px;border:0;background:none;font-size:17px;outline:0;min-width:0}
+#find .res{flex:1;overflow-y:auto;padding:8px 10px 30px}
+.hit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 10px;border-radius:10px;cursor:pointer}
+.hit:hover,.hit.on{background:var(--s2)}.hit mark{background:none;color:var(--ac2);font-weight:700}
+#menu{position:fixed;z-index:45;right:10px;top:calc(56px + env(safe-area-inset-top));width:250px;padding:6px;border-radius:14px;background:var(--s2);border:1px solid var(--line2);box-shadow:var(--shadow)}
+#menu button{display:flex;align-items:center;gap:10px;width:100%;height:42px;padding:0 10px;border-radius:9px;font-size:14px;text-align:left}
+#menu button:hover{background:var(--s3)}#menu .note{padding:8px 10px 6px;color:var(--tx3);font-size:12px;line-height:1.45;border-top:1px solid var(--line);margin-top:4px}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  padding:10px 16px;border-radius:999px;background:var(--tx);color:var(--bg);font-size:13.5px;font-weight:600;box-shadow:var(--shadow);transition:opacity .2s,transform .2s;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+
+/* ---------- map tab ---------- */
+#app.mapon #main{padding:0;max-width:none;margin:0}
+.mwrap{position:relative;isolation:isolate;overflow:hidden;height:calc(100vh - 110px);background:var(--bg2)}
+.mwrap .mcanvas{position:absolute;top:0;right:0;bottom:0;left:0}
+.mpanel{position:absolute;top:12px;left:12px;bottom:12px;width:360px;z-index:3;display:flex;flex-direction:column;
+  background:var(--s1);border:1px solid var(--line2);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.msearch{position:relative;padding:12px 12px 6px}
+.msearch .search input{height:42px}
+.mres{position:absolute;left:12px;right:12px;top:58px;z-index:5;max-height:min(60vh,460px);overflow-y:auto;padding:4px;
+  background:var(--s2);border:1px solid var(--line2);border-radius:12px;box-shadow:var(--shadow);overscroll-behavior:contain}
+.msheet{flex:1;min-height:0;display:flex;flex-direction:column}
+.mgrab{display:none}
+.mbody{flex:1;min-height:0;overflow-y:auto;padding:6px 14px 16px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.mbig{font-size:34px;font-weight:760;letter-spacing:-.04em;line-height:1.05;margin-top:2px}
+.mbig small{font-size:13px;font-weight:600;letter-spacing:0;color:var(--tx2);margin-left:3px}
+.mstat{color:var(--tx2);font-size:12.5px;line-height:1.65;margin:6px 0 12px}.mstat b{color:var(--tx);font-weight:650;font-variant-numeric:tabular-nums}.mstat .hotn{color:var(--bad)}
+.mtog{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.mtog .pill{height:32px;font-size:13px}
+.mkinds{display:grid;gap:1px;margin-bottom:14px}
+.mkind{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:9px;align-items:center;height:32px;padding:0 8px;border-radius:8px;font-size:13px;text-align:left;transition:background .12s,opacity .12s}
+.mkind:hover{background:var(--s3)}.mkind i{width:10px;height:10px;border-radius:50%}.mkind span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mkind b{color:var(--tx3);font-weight:600;font-size:12px}.mkind.off{opacity:.4}.mkind.off i{background:transparent!important;box-shadow:inset 0 0 0 1.5px var(--tx3)}
+.mh{margin:2px 0 6px}
+.mlist{display:grid;gap:1px}
+.mrow{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;padding:8px;border-radius:9px;text-align:left}
+.mrow:hover{background:var(--s3)}.mrow i{justify-self:center;width:9px;height:9px;border-radius:50%}.mrow .ic{width:16px;height:16px;color:var(--ac2)}
+.mrow b{display:block;font-weight:620;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow small{display:block;color:var(--tx3);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow em{font-style:normal;font-size:11px;font-weight:650;color:var(--bad);background:var(--badbg);padding:2px 6px;border-radius:5px}
+.mfine{color:var(--tx3);font-size:13px;padding:10px 4px}
+.mback{display:inline-flex;align-items:center;gap:3px;height:30px;margin:0 0 6px -6px;padding:0 8px 0 2px;border-radius:8px;color:var(--tx2);font-size:13px}
+.mback:hover{background:var(--s3);color:var(--tx)}
+.mkline{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--tx2)}.mkline i{flex:none;width:9px;height:9px;border-radius:50%}.mkline span{color:var(--tx3);font-weight:500}
+.mcard h2{font-size:21px;font-weight:720;letter-spacing:-.025em;line-height:1.2;margin:5px 0 4px;overflow-wrap:anywhere}
+.maddr{color:var(--tx2);font-size:13.5px}.maddr span{display:block;margin-top:3px;color:var(--warn);font-size:12px}
+.mind{margin-top:9px;color:var(--tx2);font-size:13px}
+.mfacts{margin-top:12px;padding:12px;border-radius:12px;background:var(--s2);border:1px solid var(--line)}
+.mfacts div{color:var(--tx3);font-size:12px;line-height:1.3}
+.mcontact{margin-top:10px;font-size:13.5px}.mcontact .lbl{display:block;margin-bottom:2px}
+.mstyles{position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--glass);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line2);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.mstyles button{height:28px;padding:0 10px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--tx2)}.mstyles button.on{background:var(--tx);color:var(--bg)}
+.minview{position:absolute;left:386px;bottom:14px;z-index:2;max-width:calc(100% - 540px);padding:7px 12px;border-radius:12px;background:var(--glass);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line2);box-shadow:0 6px 20px rgba(0,0,0,.25);
+  color:var(--tx2);font-size:12.5px;line-height:1.35;pointer-events:none}
+.minview b{font-weight:650;color:var(--tx);font-variant-numeric:tabular-nums}.minview span{display:block;color:var(--tx3);font-size:11.5px}
+.mwrap .maplibregl-ctrl-group{border-radius:10px}
+:root:not([data-theme=light]) .mwrap .maplibregl-ctrl-group{background:var(--s2);box-shadow:0 0 0 1px var(--line2)}
+:root:not([data-theme=light]) .mwrap .maplibregl-ctrl-group button+button{border-top-color:var(--line2)}
+:root:not([data-theme=light]) .mwrap .maplibregl-ctrl-icon,:root:not([data-theme=light]) .mwrap .maplibregl-ctrl-attrib-button{filter:invert(.92)}
+:root:not([data-theme=light]) .mwrap .maplibregl-ctrl-attrib{background:var(--glass);color:var(--tx3)}
+:root:not([data-theme=light]) .mwrap .maplibregl-ctrl-attrib a{color:var(--tx2)}
+@media (max-width:759px){
+  .mpanel{display:contents}
+  .msearch{position:absolute;top:10px;left:10px;right:10px;z-index:4;padding:0}
+  .msearch .search input{background:var(--s1);border-color:var(--line2);box-shadow:0 6px 22px rgba(0,0,0,.3)}
+  .mres{left:0;right:0;top:50px;max-height:min(52vh,420px)}
+  .mstyles{top:60px;right:10px}
+  .msheet{position:absolute;left:0;right:0;bottom:0;height:44%;z-index:3;background:var(--s1);border-top:1px solid var(--line2);
+    border-radius:18px 18px 0 0;box-shadow:0 -12px 34px rgba(0,0,0,.35);transition:height .22s cubic-bezier(.2,.8,.2,1)}
+  .mgrab{display:block;flex:none;position:relative;width:100%;height:24px}
+  .mgrab:before{content:"";position:absolute;left:50%;top:8px;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:var(--line2)}
+  .mbody{padding:0 14px calc(16px + env(safe-area-inset-bottom))}
+  .mwrap.min .msheet{height:96px}
+  .minview{left:10px;bottom:calc(44% + 10px);max-width:calc(100% - 120px)}
+  .mwrap.min .minview{bottom:106px}
+  .mwrap .maplibregl-ctrl-bottom-right{bottom:calc(44% + 2px)}
+  .mwrap.min .maplibregl-ctrl-bottom-right{bottom:98px}
+}
+
+/* ---------- wider screens ---------- */
+@media (min-width:640px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.featgrid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:end}}
+@media (min-width:1080px){
+  #app{grid-template-columns:244px minmax(0,1fr) minmax(400px,34vw)}
+  #side{display:flex;flex-direction:column;position:sticky;top:0;height:100vh;padding:18px 12px 14px;border-right:1px solid var(--line);background:var(--bg2);overflow-y:auto}
+  #side .brand{padding:2px 8px 16px;font-size:18px}
+  #side .nav{display:grid;gap:2px}
+  #side .tab{height:38px;border-radius:10px;justify-content:flex-start;padding:0 10px}#side .tab .n{margin-left:auto}
+  #side .tab.on{background:var(--s3);color:var(--tx);box-shadow:inset 3px 0 0 var(--ac)}#side .tab.on .n{color:var(--tx2);opacity:1}
+  #side .grp{margin:16px 10px 6px}#side .foot{margin-top:auto;padding:12px 8px 0;color:var(--tx3);font-size:12px;line-height:1.5}
+  #top .brand,#tabs{display:none}.bar{padding-left:22px;height:58px}.bar .live{flex:1}.live .wide{display:inline}.live .narrow{display:none}
+  #main{padding:22px 22px 60px;margin:0;max-width:none}.filters{flex-wrap:wrap;overflow:visible;margin:0 0 12px;padding:0}
+  #pane{position:sticky;top:0;height:100vh;transform:none;visibility:visible;border-left:1px solid var(--line);background:var(--bg2);transition:none;z-index:1}
+  .phead .back{display:none}.phead{padding-left:16px;height:58px}.pbody{padding:18px 18px 40px}
+  .dock{display:none}.ring.lg:before{background:var(--bg2)}
+  .blank{display:grid;place-items:center;height:100%;text-align:center;color:var(--tx3);padding:30px}.blank .radar{width:120px;height:120px;opacity:.7;margin-bottom:20px}
+  #find{right:auto;bottom:auto;left:50%;top:9vh;width:640px;max-height:76vh;transform:translateX(-50%);border-radius:16px;border:1px solid var(--line2);box-shadow:var(--shadow);background:var(--s1);overflow:hidden}
+  #find .fbar{padding:6px 8px 6px 14px}.scrim{position:fixed;top:0;right:0;bottom:0;left:0;z-index:39;background:rgba(0,0,0,.5)}
+  #toast{bottom:28px}
+  #app.mapon{grid-template-columns:244px minmax(0,1fr)}
+  #app.mapon #pane{position:fixed;top:0;right:0;bottom:0;left:auto;width:min(460px,40vw);height:auto;z-index:30;box-shadow:var(--shadow);
+    transform:translateX(102%);visibility:hidden;transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+  #app.mapon #pane.open{transform:none;visibility:visible}
+  #app.mapon .phead .back{display:grid}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important}}
+</style>
+</head>
+<body data-build="800ede038a">
+<div id="lock">
+  <div class="lockbox">
+    <div class="radar" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="brand">Freight Radar</div>
+    <p class="tag">Freight that needs a truck, found every morning.</p>
+    <form id="f" hidden>
+      <input id="pw" class="field" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Password" aria-label="Password">
+      <label class="check"><input type="checkbox" id="remember" checked> Keep me signed in on this device</label>
+      <div class="err" id="err" role="alert"></div>
+      <button class="btn block" id="go">Unlock</button>
+    </form>
+    <div class="err info" id="wait">Opening...</div>
+    <p class="fine">Locked with AES-256. Your data is unlocked on this device only.</p>
+  </div>
+</div>
+<div id="app" hidden>
+  <aside id="side">
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/><circle cx="12" cy="12" r="5.5" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/><path d="M12 12 19 5" stroke="#ff7a1a" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="1.8" fill="#ff7a1a"/><circle cx="17.2" cy="13.8" r="1.3" fill="#ff7a1a"/></svg>Freight Radar</div>
+    <nav class="nav" id="nav" aria-label="Lists"></nav>
+    <div class="foot" id="foot"></div>
+  </aside>
+  <div id="col">
+    <header id="top">
+      <div class="bar">
+        <div class="brand"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/><circle cx="12" cy="12" r="5.5" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/><path d="M12 12 19 5" stroke="#ff7a1a" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="1.8" fill="#ff7a1a"/><circle cx="17.2" cy="13.8" r="1.3" fill="#ff7a1a"/></svg>Freight Radar</div>
+        <div class="live"><span class="dot" id="dot"></span><span id="updated"></span></div>
+        <button class="iconbtn" id="findbtn" aria-label="Search every list"></button>
+        <button class="iconbtn" id="menubtn" aria-label="Menu" aria-haspopup="true"></button>
+      </div>
+      <nav id="tabs" aria-label="Lists"></nav>
+    </header>
+    <main id="main"></main>
+  </div>
+  <section id="pane" aria-label="Lead details"></section>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+// gzip unpacking for phones whose browser has no DecompressionStream (older iPhones)
+const LB = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258];
+const LE = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0];
+const DB = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577];
+const DE = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
+const ORDER = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+function gunzip(buf) {
+  if (buf[0] !== 0x1f || buf[1] !== 0x8b) throw new Error('not gzip');
+  const flg = buf[3]; let p = 10;
+  if (flg & 4) p += 2 + (buf[p] | (buf[p + 1] << 8));
+  if (flg & 8) while (buf[p++]);
+  if (flg & 16) while (buf[p++]);
+  if (flg & 2) p += 2;
+  let out = new Uint8Array(buf.length * 6), n = 0, bb = 0, bc = 0;
+  const bits = k => { while (bc < k) { bb |= buf[p++] << bc; bc += 8; } const v = bb & ((1 << k) - 1); bb >>>= k; bc -= k; return v; };
+  const put = b => { if (n === out.length) { const o = new Uint8Array(out.length * 2); o.set(out); out = o; } out[n++] = b; };
+  const table = lens => {
+    const count = new Uint16Array(16), sym = new Uint16Array(lens.length), offs = new Uint16Array(16);
+    lens.forEach(l => { count[l]++; }); count[0] = 0;
+    for (let i = 1; i < 16; i++) offs[i] = offs[i - 1] + count[i - 1];
+    lens.forEach((l, s) => { if (l) sym[offs[l]++] = s; });
+    return { count, sym };
+  };
+  const decode = t => {
+    let code = 0, first = 0, index = 0;
+    for (let len = 1; len < 16; len++) {
+      code |= bits(1);
+      const c = t.count[len];
+      if (code - c < first) return t.sym[index + (code - first)];
+      index += c; first += c; first <<= 1; code <<= 1;
+    }
+    throw new Error('bad data');
+  };
+  let last;
+  do {
+    last = bits(1);
+    const type = bits(2);
+    if (type === 0) {
+      bb = 0; bc = 0;
+      const len = buf[p] | (buf[p + 1] << 8); p += 4;
+      for (let i = 0; i < len; i++) put(buf[p++]);
+    } else if (type === 1 || type === 2) {
+      let lit, dist;
+      if (type === 1) {
+        const l = new Array(288).fill(8).fill(9, 144, 256).fill(7, 256, 280);
+        lit = table(l); dist = table(new Array(30).fill(5));
+      } else {
+        const hlit = bits(5) + 257, hdist = bits(5) + 1, hclen = bits(4) + 4, cl = new Array(19).fill(0);
+        for (let i = 0; i < hclen; i++) cl[ORDER[i]] = bits(3);
+        const ct = table(cl), lens = [];
+        while (lens.length < hlit + hdist) {
+          const sy = decode(ct);
+          if (sy < 16) lens.push(sy);
+          else if (sy === 16) { const prev = lens[lens.length - 1]; for (let r = 3 + bits(2); r > 0; r--) lens.push(prev); }
+          else for (let r = sy === 17 ? 3 + bits(3) : 11 + bits(7); r > 0; r--) lens.push(0);
+        }
+        lit = table(lens.slice(0, hlit)); dist = table(lens.slice(hlit));
+      }
+      for (;;) {
+        const sy = decode(lit);
+        if (sy < 256) put(sy);
+        else if (sy === 256) break;
+        else {
+          const i = sy - 257, len = LB[i] + bits(LE[i]), d = decode(dist), off = DB[d] + bits(DE[d]);
+          for (let k = 0; k < len; k++) put(out[n - off]);
+        }
+      }
+    } else throw new Error('bad data');
+  } while (!last);
+  return out.subarray(0, n);
+}
+</script>
+<script>
+'use strict';
+// Shared helpers, the lock (AES-GCM through Web Crypto) and the data files.
+const $ = (s, el) => (el || document).querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = n => n == null ? '' : n >= 1e6 ? '$' + (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M' : n >= 1e3 ? '$' + Math.round(n / 1e3) + 'K' : '$' + Math.round(n);
+const digits = p => String(p || '').replace(/[^0-9+]/g, '');
+const iso = s => /^\d{8}$/.test(s || '') ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}` : String(s || '').slice(0, 10);
+const asDate = s => { const d = new Date(iso(s) + 'T12:00'); return isNaN(d) ? null : d; };
+// Date formatters are built once: making one per row is what slows a 1,500-row list down.
+const DATE_KINDS = { full: { month: 'short', day: 'numeric', year: 'numeric' }, md: { month: 'short', day: 'numeric' }, wmd: { weekday: 'short', month: 'short', day: 'numeric' }, my: { month: 'short', year: 'numeric' } };
+const DATE_FMT = {};
+const fmtDay = (s, kind) => { const d = asDate(s), k = kind || 'full'; return d ? (DATE_FMT[k] || (DATE_FMT[k] = new Intl.DateTimeFormat(undefined, DATE_KINDS[k]))).format(d) : ''; };
+const shortDay = s => fmtDay(s, 'wmd');
+const daysAgo = s => { const d = asDate(s); return d ? Math.round((new Date().setHours(12, 0, 0, 0) - d) / 864e5) : null; };
+const agoText = s => { const n = daysAgo(s); return n == null ? '' : n <= 0 ? 'today' : n === 1 ? 'yesterday' : n + ' days ago'; };
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many || one + 's'}`;
+const uniq = a => [...new Set(a.filter(Boolean))];
+
+const ICON = {
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+  mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6.5-10 7-10-7"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  back: '<path d="m15 18-6-6 6-6"/>', chev: '<path d="m9 18 6-6-6-6"/>',
+  pin: '<path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>', check: '<path d="m5 12 5 5L20 7"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>',
+  dots: '<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>',
+};
+const ic = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* private mode */ } },
+};
+let toastTimer = 0;
+function toast(msg, action) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.onclick = action || null;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), action ? 9000 : 1800);
+}
+async function copyText(text, what) {
+  try { await navigator.clipboard.writeText(text); } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e2) { /* nothing more to try */ }
+    ta.remove();
+  }
+  toast((what || 'Copied') + ' copied');
+}
+
+// ---------- leads you've already called (kept on this device only) ----------
+const DONE = store.get('fr_done', {});
+(() => { const cut = Date.now() - 45 * 864e5; for (const k in DONE) if (DONE[k] < cut) delete DONE[k]; })();
+function setDone(key, on) { if (on) DONE[key] = Date.now(); else delete DONE[key]; store.set('fr_done', DONE); }
+
+// ---------- the lock ----------
+let KEY = null, DATA = null, BOX_IV = '', LEADS = {};
+const SHARD = {};
+function b64(s) { const bin = atob(s), n = bin.length, out = new Uint8Array(n); for (let i = 0; i < n; i++) out[i] = bin.charCodeAt(i); return out; }
+async function unpack(plain) {
+  if (typeof DecompressionStream === 'function') {
+    try { return await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); } catch (e) { /* fall through */ }
+  }
+  return new TextDecoder().decode(gunzip(new Uint8Array(plain)));
+}
+async function deriveKey(pw, box) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(box.salt), iterations: box.iter, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+}
+// -> { data } | { bad: 'key' } (wrong password) | { bad: 'unpack' } (this browser can't unzip it)
+async function openBox(box, key) {
+  let plain;
+  try { plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(box.iv) }, key, b64(box.ct)); } catch (e) { return { bad: 'key' }; }
+  try { return { data: JSON.parse(await unpack(plain)) }; } catch (e) { return { bad: 'unpack' }; }
+}
+// The unlocked key (never the password) is kept in this browser so the next visit opens instantly.
+function keyDb(mode, fn) {
+  return new Promise((res, rej) => {
+    const open = indexedDB.open('fr', 1);
+    open.onupgradeneeded = () => open.result.createObjectStore('k');
+    open.onerror = () => rej(open.error);
+    open.onsuccess = () => {
+      const tx = open.result.transaction('k', mode), rq = fn(tx.objectStore('k'));
+      tx.oncomplete = () => res(rq.result);
+      tx.onerror = tx.onabort = () => rej(tx.error);
+    };
+  });
+}
+const keyLoad = () => keyDb('readonly', s => s.get('site')).catch(() => null);
+const keySave = v => keyDb('readwrite', s => s.put(v, 'site')).then(() => true, () => false);
+const keyDrop = () => keyDb('readwrite', s => s.delete('site')).catch(() => null);
+async function fetchCore() {
+  const r = await fetch('data.json', { cache: 'no-cache' });
+  if (!r.ok) throw new Error('http ' + r.status);
+  return r.json();
+}
+function useData(box, key, data) {
+  KEY = key; DATA = data; BOX_IV = box.iv; LEADS = {};
+  for (const k in SHARD) delete SHARD[k];
+}
+
+// ---------- lead pages: fetched in pieces, as they're needed ----------
+function shardOf(key, n) {
+  let h = 0x811c9dc5;
+  for (const b of new TextEncoder().encode(key)) { h ^= b; h = Math.imul(h, 0x01000193) >>> 0; }
+  return h % n;
+}
+function loadShard(i) {
+  if (!SHARD[i]) {
+    const version = BOX_IV;  // changes with every upload, so a phone never mixes two days' files
+    SHARD[i] = (async () => {
+      const r = await fetch('d/' + String(i).padStart(2, '0') + '.json?v=' + encodeURIComponent(version));
+      if (!r.ok) throw new Error('http ' + r.status);
+      const got = await openBox(await r.json(), KEY);
+      if (!got.data) throw new Error('locked');
+      if (BOX_IV === version) Object.assign(LEADS, got.data);
+    })();
+    SHARD[i].catch(() => { delete SHARD[i]; });
+  }
+  return SHARD[i];
+}
+async function getLead(key) {
+  if (!LEADS[key] && DATA.shards) await loadShard(shardOf(key, DATA.shards));
+  return LEADS[key] || null;
+}
+// Every lead file, one after another: so each lead opens instantly, and offline.
+async function loadAll(report) {
+  const version = BOX_IV;
+  for (let i = 0; i < (DATA.shards || 0) && BOX_IV === version; i++) {
+    await loadShard(i);
+    if (report) report(i + 1, DATA.shards);
+  }
+}
+// On a fast connection that happens by itself. On a phone's mobile data, lead files come down
+// as leads are opened (and "Save for offline" in the menu fetches the lot).
+function warm() {
+  const c = navigator.connection;
+  if (c && !c.saveData && c.effectiveType === '4g' && (c.downlink || 0) >= 5) setTimeout(() => loadAll().catch(() => { /* offline */ }), 1200);
+}
+</script>
+<script>
+'use strict';
+// Lists. Every row arrives already worded inside the locked data; this file only draws them,
+// filters them and keeps a long list fast. It knows nothing about what the lists are.
+const chip = c => c && c[0] ? `<span class="chip ${esc(c[1] || '')}">${esc(c[0])}</span>` : '';
+const chips = a => (a || []).map(chip).join('');
+const ring = (v, lg) => `<div class="ring${lg ? ' lg' : ''} h${v >= 75 ? 3 : v >= 55 ? 2 : v >= 35 ? 1 : 0}" style="--v:${+v || 0}" title="${+v || 0} of 100"><span>${+v || 0}</span></div>`;
+const glyph = (text, cls) => `<div class="glyph ${esc(cls || '')}"${String(text).length > 4 ? ' style="font-size:10.5px"' : ''}>${esc(text)}</div>`;
+const badge = l => Array.isArray(l) ? glyph(l[0], l[1]) : ring(l);
+const tabOf = id => DATA.tabs.find(t => t.id === id) || DATA.tabs[0];
+function rowsOf(id) {  // a list's rows, with their search text worked out once
+  const tab = tabOf(id);
+  if (!tab.ready) {
+    tab.rows.forEach(r => { r.find = `${r.n} ${r.m || ''} ${r.x || ''} ${(r.s || []).join(' ')}`.toLowerCase(); });
+    tab.ready = true;
+  }
+  return tab.rows;
+}
+function rowHtml(r) {
+  const done = DONE[r.k] ? chip(['Called', 'ok']) : '';
+  return `<div class="row${done ? ' done' : ''}${r.k === LEAD ? ' cur' : ''}" data-k="${esc(r.k)}" role="button" tabindex="0">${badge(r.l)}
+    <div style="min-width:0"><div class="nm">${esc(r.n)}</div>${r.m ? `<div class="meta">${esc(r.m)}</div>` : ''}${r.w ? `<div class="why">${esc(r.w)}</div>` : ''}${r.c || done ? `<div class="chips">${chips(r.c)}${done}</div>` : ''}</div>
+    ${r.p ? `<a class="call" href="tel:${esc(digits(r.p))}" aria-label="Call ${esc(r.n)}">${ic('phone')}</a>` : '<span></span>'}</div>`;
+}
+
+// ---------- a list ----------
+const FILTERS = {};  // what you picked on each list, kept while the page is open
+const filtersFor = id => FILTERS[id] || (FILTERS[id] = { q: '', st: '', kind: '', fresh: false, phone: false, sort: '' });
+const CHUNK = 40;
+let moreWatch = null;
+function fill(box, list, from) {  // rows in batches as you scroll: 1,500 rows never hit the page at once
+  if (moreWatch) moreWatch.disconnect();
+  const end = Math.min(list.length, from + CHUNK);
+  const old = box.querySelector('.more');
+  if (old) old.remove();
+  box.insertAdjacentHTML('beforeend', list.slice(from, end).map(rowHtml).join(''));
+  if (end < list.length) {
+    box.insertAdjacentHTML('beforeend', `<button class="more">Showing ${end} of ${list.length.toLocaleString()}. Show more</button>`);
+    const btn = box.querySelector('.more');
+    btn.onclick = () => fill(box, list, end);
+    if ('IntersectionObserver' in window) {
+      moreWatch = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) fill(box, list, end); }, { rootMargin: '900px' });
+      moreWatch.observe(btn);
+    }
+  }
+}
+function renderList(id) {
+  const tab = tabOf(id), all = rowsOf(id), f = filtersFor(id);
+  const count = fn => all.reduce((n, r) => n + (fn(r) ? 1 : 0), 0);
+  const stCount = {};
+  all.forEach(r => (r.s || []).forEach(s => { stCount[s] = (stCount[s] || 0) + 1; }));
+  const sts = Object.keys(stCount).sort(), kinds = tab.kinds || [];
+  const nNew = count(r => r.f), nPhone = count(r => r.p);
+  $('#main').innerHTML = `<div class="fade"><div class="head"><h1>${esc(tab.label)} <small class="num" id="shown"></small></h1><p>${esc(tab.blurb || '')}</p></div>
+    <div class="tools"><label class="search">${ic('search')}<input id="q" type="search" placeholder="Search ${all.length.toLocaleString()} companies" value="${esc(f.q)}" autocomplete="off" aria-label="Search this list"></label></div>
+    <div class="tools filters">
+      ${sts.length > 1 ? `<select class="sel" id="fst" aria-label="State"><option value="">All states</option>${sts.map(s => `<option value="${esc(s)}"${f.st === s ? ' selected' : ''}>${esc(s)} (${stCount[s]})</option>`).join('')}</select>` : ''}
+      ${kinds.length ? `<select class="sel" id="fkind" aria-label="Reason"><option value="">Any reason</option>${kinds.map(k => `<option value="${esc(k[0])}"${f.kind === k[0] ? ' selected' : ''}>${esc(k[1])}</option>`).join('')}</select>` : ''}
+      ${nNew ? `<button class="pill${f.fresh ? ' on' : ''}" id="fnew" aria-pressed="${f.fresh}">New <b>${nNew.toLocaleString()}</b></button>` : ''}
+      ${nPhone && nPhone < all.length ? `<button class="pill${f.phone ? ' on' : ''}" id="fphone" aria-pressed="${f.phone}">Has a phone <b>${nPhone.toLocaleString()}</b></button>` : ''}
+      ${tab.sort ? `<select class="sel" id="fsort" aria-label="Sort"><option value="">Hottest first</option><option value="new"${f.sort === 'new' ? ' selected' : ''}>Newest first</option></select>` : ''}
+    </div><div class="list" id="rows"></div></div>`;
+  const box = $('#rows');
+  const draw = () => {
+    const q = f.q.trim().toLowerCase();
+    let list = all.filter(r => (!q || r.find.includes(q)) && (!f.st || (r.s || []).includes(f.st)) && (!f.kind || (r.kd || []).includes(f.kind)) && (!f.fresh || r.f) && (!f.phone || r.p));
+    if (f.sort === 'new') list = list.slice().sort((a, b) => (b.d || '').localeCompare(a.d || ''));
+    $('#shown').textContent = list.length !== all.length ? `${list.length.toLocaleString()} of ${all.length.toLocaleString()}`
+      : tab.total > all.length ? `hottest ${all.length.toLocaleString()} of ${tab.total.toLocaleString()}` : all.length.toLocaleString();
+    box.innerHTML = list.length ? '' : `<div class="empty">Nothing matches. Clear a filter to see more.</div>`;
+    if (list.length) fill(box, list, 0);
+  };
+  const on = (sel, ev, fn) => { const el = $(sel); if (el) el[ev] = fn; };
+  const toggle = key => e => { f[key] = !f[key]; e.currentTarget.classList.toggle('on', f[key]); e.currentTarget.setAttribute('aria-pressed', f[key]); draw(); };
+  on('#q', 'oninput', e => { f.q = e.target.value; draw(); });
+  on('#fst', 'onchange', e => { f.st = e.target.value; draw(); });
+  on('#fkind', 'onchange', e => { f.kind = e.target.value; draw(); });
+  on('#fsort', 'onchange', e => { f.sort = e.target.value; draw(); });
+  on('#fnew', 'onclick', toggle('fresh'));
+  on('#fphone', 'onclick', toggle('phone'));
+  draw();
+}
+function renderTabs() {
+  const html = DATA.tabs.map(t => `<button class="tab${t.id === TAB ? ' on' : ''}" data-t="${esc(t.id)}">${t.hot ? '<span class="hot"></span>' : ''}${esc(t.label)}<span class="n">${(t.n != null ? t.n : t.rows.length).toLocaleString()}</span></button>`).join('');
+  $('#tabs').innerHTML = html;
+  $('#nav').innerHTML = html;
+  const on = $('#tabs .on');
+  if (on && on.scrollIntoView) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+</script>
+<script>
+'use strict';
+// The home screen: a featured list with its numbers and a map, a tile per list, and the day's rows.
+// What each of those says comes from the locked data.
+const GRID = ['AK,,,,,,,,,,ME', ',,,,,,,,,VT,NH', 'WA,ID,MT,ND,MN,IL,WI,MI,NY,RI,MA', 'OR,NV,WY,SD,IA,IN,OH,PA,NJ,CT,',
+  'CA,UT,CO,NE,MO,KY,WV,VA,MD,DE,', ',AZ,NM,KS,AR,TN,NC,SC,DC,,', ',,,OK,LA,MS,AL,GA,,,', 'HI,,,TX,,,,,FL,,'];
+function stateMap(by, tab) {
+  const max = Math.max(1, ...Object.values(by));
+  return `<div class="map" role="group">${GRID.map(line => line.split(',').map(s => {
+    if (!s) return '<span></span>';
+    const n = by[s] || 0, t = Math.sqrt(n / max);
+    return `<b${n ? ` data-n="${n}" data-st="${s}" data-for="${esc(tab)}" title="${s}: ${n}" style="background:rgba(255,122,26,${(0.1 + 0.8 * t).toFixed(2)})${t > 0.55 ? ';color:#190b00' : ''}"` : ''}>${s}</b>`;
+  }).join('')).join('')}</div>`;
+}
+function renderHome(id) {
+  const h = DATA.home || {}, f = h.feature, rows = rowsOf(id);
+  const now = new Date();
+  const most = f && f.bars && f.bars.length ? f.bars[0][1] : 1;
+  $('#main').innerHTML = `<div class="fade">
+    <div class="hero"><div><div class="lbl">${esc(now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }))}</div><h1>${esc(h.title || '')}</h1></div></div>
+    ${f ? `<div class="feat" data-t="${esc(f.tab)}" role="button" tabindex="0">
+      <div class="lbl" style="color:var(--ac2)">${esc(f.label)}</div>
+      <div class="featgrid"><div>
+        <div class="big num">${(+f.big || 0).toLocaleString()}${f.small ? `<small>${esc(f.small)}</small>` : ''}</div>
+        <h2>${esc(f.h)}</h2><p>${esc(f.p)}</p>
+        <div class="bars" style="margin-top:14px">${(f.bars || []).map(b => `<div class="barrow"><span>${esc(b[0])}</span><i><b style="width:${Math.max(4, Math.round(100 * b[1] / most))}%"></b></i><span>${(+b[1]).toLocaleString()}</span></div>`).join('')}</div>
+      </div>${f.map ? `<div><div class="lbl" style="margin-bottom:8px">${esc(f.maplabel || '')}</div>${stateMap(f.map, f.tab)}</div>` : ''}</div></div>` : ''}
+    <div class="tiles">${(h.tiles || []).map(t => `<button class="tile" data-t="${esc(t.tab)}"><div class="lbl">${esc(t.label)}</div><div class="v">${(+t.n || 0).toLocaleString()}${t.new ? `<small>+${+t.new} new</small>` : ''}</div><div class="d">${esc(t.d)}</div></button>`).join('')}</div>
+    <div class="sub"><h2>${esc(h.list || '')}</h2><span class="lbl">${esc(h.count || '')}</span></div>
+    <div class="list" id="rows">${rows.length ? '' : '<div class="empty">Nothing here yet.</div>'}</div></div>`;
+  if (rows.length) fill($('#rows'), rows, 0);
+}
+</script>
+<script>
+'use strict';
+// A lead page, drawn from blocks that arrive already worded inside the locked data.
+// This file knows how to draw a list, a timeline, a table, contacts and scripts: not what they say.
+let LEAD = null, SCRIPT = 0;
+const fmtPhone = p => { const d = digits(p).replace(/^\+?1(?=\d{10}$)/, ''); return /^\d{10}$/.test(d) ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : String(p || ''); };
+const web = u => /^https:\/\//.test(u || '') ? u : '#';  // only real web links are ever opened
+const card = (title, body, extra) => body ? `<div class="card"><div class="lbl"><span>${esc(title)}</span>${extra || ''}</div>${body}</div>` : '';
+const telBtn = p => `<a class="btn sm ghost" href="tel:${esc(digits(p))}" aria-label="Call ${esc(fmtPhone(p))}">${ic('phone')}</a>`;
+const mailBtn = e => `<a class="btn sm ghost" href="mailto:${esc(e)}" aria-label="Email ${esc(e)}">${ic('mail')}</a>`;
+const outLink = (label, url) => `<a class="btn sm ghost" href="${esc(web(url))}" target="_blank" rel="noopener noreferrer">${ic('ext')}${esc(label)}</a>`;
+const person = (main, sub, buttons) => `<div class="person"><div style="min-width:0">${main}${sub ? `<div class="t">${esc(sub)}</div>` : ''}</div><div class="go">${buttons}</div></div>`;
+
+function sayBody(tab) {
+  if (!tab) return '';
+  if (tab.qa) return tab.qa.map(o => `<div class="qa"><b>${esc(o[0])}</b><span>${esc(o[1])}</span></div>`).join('');
+  return `${tab.sub ? `<div class="lbl" style="margin-bottom:6px">Subject</div><div style="font-weight:650;margin-bottom:12px">${esc(tab.sub)}</div>` : ''}<div class="script">${esc(tab.x || '')}</div>
+    <div class="acts"><button class="btn sm ghost" data-copy>${ic('copy')}Copy</button>${tab.sub != null ? `<a class="btn sm ghost" href="mailto:${esc(tab.to || '')}?subject=${encodeURIComponent(tab.sub)}&body=${encodeURIComponent(tab.x || '')}">${ic('mail')}Open in Mail</a>` : ''}</div>`;
+}
+const BLOCK = {
+  list: b => card(b.h, (b.i || []).map(x => `<div class="why-li">${Array.isArray(x) ? `${x[0] ? `<b>${esc(x[0])}</b>` : ''}${esc(x[1] || '')}${x[2] ? ` <span style="color:var(--tx3)">${esc(x[2])}</span>` : ''}` : esc(x)}</div>`).join('')),
+  time: b => card(b.h, (b.i || []).map(e => `<div class="tl">
+    <div class="when">${esc(e.w)}${e.d ? ` <span style="color:var(--tx3);font-weight:500">· ${esc(agoText(e.d))}</span>` : ''}</div>
+    ${e.s ? `<div class="meta" style="white-space:normal">${esc(e.s)}</div>` : ''}${(e.c || []).length ? `<div class="chips">${chips(e.c)}</div>` : ''}
+    ${(e.v || []).map(v => `<div class="v">${esc(v)}</div>`).join('')}
+    ${(e.f || []).length ? `<div class="rec">${e.f.map(p => p[0] === 'm' ? `<span class="mono">${esc(p[1])}</span>` : p[0] === 'a' ? `<a href="${esc(web(p[2]))}" target="_blank" rel="noopener noreferrer">${esc(p[1])}</a>` : esc(p[1])).join('')}</div>` : ''}</div>`).join(''),
+    b.r ? `<span class="num">${esc(b.r)}</span>` : ''),
+  kv: b => card(b.h, `<div class="kv">${(b.i || []).map(c => `<div><span class="lbl">${esc(c[0])}</span><b>${esc(c[1])}</b></div>`).join('')}</div>`),
+  who: b => {
+    const people = (b.people || []).map(p => person(`<b>${esc(p.n)}</b>${p.t ? `<div class="t">${esc(p.t)}</div>` : ''}${p.e ? `<div class="t"><a class="lnk" href="mailto:${esc(p.e)}">${esc(p.e)}</a>${p.g ? ' ' + chip([b.guess, '']) : ''}</div>` : ''}<div class="s">${esc(p.s || '')}</div>`, '', (p.p ? telBtn(p.p) : '') + (p.e ? mailBtn(p.e) : ''))).join('');
+    const lines = (b.lines || []).map(l => person(`<b class="num">${esc(fmtPhone(l[0]))}</b>`, l[1], telBtn(l[0]))).join('');
+    const mails = (b.emails || []).map(m => person(`<a class="lnk" href="mailto:${esc(m[0])}">${esc(m[0])}</a>`, m[1], mailBtn(m[0]))).join('');
+    return card(b.h, people + lines + mails || `<p style="color:var(--tx2)">${esc(b.none || '')}</p>`,
+      b.site ? `<a class="lnk" style="text-transform:none;letter-spacing:0;font-weight:500;font-size:12.5px" href="https://${esc(b.site)}" target="_blank" rel="noopener noreferrer">${esc(b.site)}</a>` : '');
+  },
+  say: b => {
+    if (SCRIPT >= b.tabs.length) SCRIPT = 0;
+    return card(b.h, `<div class="seg" role="tablist">${b.tabs.map((t, i) => `<button role="tab" data-script="${i}" class="${i === SCRIPT ? 'on' : ''}" aria-selected="${i === SCRIPT}">${esc(t.l)}</button>`).join('')}</div><div id="script">${sayBody(b.tabs[SCRIPT])}</div>`);
+  },
+  table: b => card(b.h, `<div class="scroll"><table class="tbl"><tr>${(b.head || []).map(x => `<th>${esc(x)}</th>`).join('')}</tr>${(b.rows || []).map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table></div>`),
+  checks: b => card(b.h, (b.i || []).map(c => `<div class="checkli ${c[0] ? 'y' : 'n'}">${ic(c[0] ? 'check' : 'x')}<span>${esc(c[1])}</span></div>`).join('') + (b.site ? `<div class="acts">${outLink(b.site, 'https://' + b.site)}</div>` : '')),
+  links: b => card(b.h, `<div class="links">${(b.i || []).map(l => outLink(l[0], l[1])).join('')}</div>`),
+  note: b => `<p class="fine" style="text-align:center">${esc(b.x)}</p>`,
+};
+const sayBlock = d => (d.blocks || []).find(b => b.t === 'say');
+function leadHtml(d) {
+  const p = (d.phones || [])[0], e = (d.emails || [])[0], done = !!DONE[d.key];
+  return `<div class="pbody fade"><div class="title"><div style="min-width:0"><div class="lbl">${esc(d.label || '')}</div><h2>${esc(d.name)}</h2>
+      ${d.addr ? `<div class="meta">${esc(d.addr)}</div>` : ''}
+      <div class="chips">${d.status ? chip([d.status, 'info']) : ''}${(d.states || []).map(s => chip([s, 'st'])).join('')}<span id="donechip">${done ? chip(['Called', 'ok']) : ''}</span></div></div>${d.heat != null ? ring(d.heat, true) : ''}</div>
+    <div class="acts">${p ? `<a class="btn" href="tel:${esc(digits(p[0]))}">${ic('phone')}Call ${esc(fmtPhone(p[0]))}</a>` : ''}${e ? `<a class="btn ghost" href="mailto:${esc(e[0])}">${ic('mail')}Email</a>` : ''}
+      <button class="btn ghost" data-done aria-pressed="${done}">${ic('check')}<span>${done ? 'Called' : 'Mark called'}</span></button></div>
+    ${(d.blocks || []).map(b => BLOCK[b.t] ? BLOCK[b.t](b) : '').join('')}</div>
+    <div class="dock">${p ? `<a class="btn" href="tel:${esc(digits(p[0]))}">${ic('phone')}Call</a>` : ''}${e ? `<a class="btn ghost" href="mailto:${esc(e[0])}" aria-label="Email">${ic('mail')}</a>` : ''}
+      ${d.opener ? `<button class="btn ghost" data-opener aria-label="Copy the call opener">${ic('copy')}${p ? '' : 'Copy opener'}</button>` : ''}<button class="btn ghost" data-done aria-label="Mark called">${ic('check')}</button></div>`;
+}
+function paneHead(name) {
+  return `<div class="phead"><button class="iconbtn back" data-close aria-label="Back to the list">${ic('back')}</button><b>${esc(name || '')}</b></div>`;
+}
+function blankPane() {
+  $('#pane').innerHTML = `<div class="blank"><div><div class="radar" aria-hidden="true"><i></i><i></i><i></i></div><b style="color:var(--tx2)">Pick a lead</b><p style="margin-top:6px;font-size:13.5px">Why now, who to call and what to say show up here.<br>Press <span class="mono">/</span> to search every list.</p></div></div>`;
+}
+function markRows() {
+  document.querySelectorAll('#main .row').forEach(el => el.classList.toggle('cur', el.dataset.k === LEAD));
+}
+async function showLead(key) {
+  const pane = $('#pane');
+  LEAD = key;
+  markRows();
+  if (!key) { pane.classList.remove('open'); blankPane(); return; }
+  const row = DATA.tabs.map(t => t.rows.find(r => r.k === key)).find(Boolean), name = row ? row.n : '';
+  pane.innerHTML = paneHead(name) + `<div class="pbody">${'<div class="card skel" style="border:0;height:110px"></div>'.repeat(3)}</div>`;
+  pane.scrollTop = 0;
+  pane.classList.add('open');
+  let d = null, failed = false;
+  try { d = await getLead(key); } catch (e) { failed = true; }
+  if (LEAD !== key) return;  // you moved on while it loaded
+  if (!d) {
+    pane.innerHTML = paneHead(name) + `<div class="pbody"><div class="empty">${failed ? "Couldn't load this lead. Check your connection.<br><br><button class=\"btn sm ghost\" data-retry>Try again</button>" : "This lead isn't in today's snapshot. It's in the app on your computer."}</div></div>`;
+    return;
+  }
+  pane.innerHTML = paneHead(d.name) + leadHtml(d);
+  pane.scrollTop = 0;
+}
+function paneClick(ev) {
+  const t = ev.target, d = LEADS[LEAD];
+  if (t.closest('[data-close]')) return closeLead();
+  if (t.closest('[data-retry]')) return showLead(LEAD);
+  if (!d) return;
+  const say = sayBlock(d), tab = t.closest('[data-script]');
+  if (tab && say) {
+    SCRIPT = +tab.dataset.script;
+    $('#pane').querySelectorAll('[data-script]').forEach(b => { b.classList.toggle('on', b === tab); b.setAttribute('aria-selected', b === tab); });
+    $('#script').innerHTML = sayBody(say.tabs[SCRIPT]);
+  } else if (t.closest('[data-copy]') && say) {
+    const cur = say.tabs[SCRIPT] || {};
+    copyText(cur.sub != null ? `${cur.sub}\n\n${cur.x || ''}` : cur.x || '', cur.l);
+  } else if (t.closest('[data-opener]')) {
+    copyText(d.opener || '', 'Opener');
+  } else if (t.closest('[data-done]')) {
+    const on = !DONE[d.key];
+    setDone(d.key, on);
+    $('#pane').querySelectorAll('[data-done]').forEach(b => { b.setAttribute('aria-pressed', on); const s = b.querySelector('span'); if (s) s.textContent = on ? 'Called' : 'Mark called'; });
+    $('#donechip').innerHTML = on ? chip(['Called', 'ok']) : '';
+    document.querySelectorAll('#main .row').forEach(el => { if (el.dataset.k === d.key) el.classList.toggle('done', on); });
+    toast(on ? 'Marked called on this device' : 'Unmarked');
+  }
+}
+</script>
+<script>
+'use strict';
+// The map tab: every pin in the locked map files, drawn as dots. What a dot means, the filters and
+// every word on a card come from the locked data (the tab's .map and the m/ files); this only draws.
+const ML_URL = 'https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl';
+const MAP_STYLES = ['dark', 'positron', 'liberty'].map(s => 'https://tiles.openfreemap.org/styles/' + s);
+const MAPS = { meta: null, map: null, P: null, N: null, namesP: null, cards: {}, sel: -1, gen: 0, view: [], count: 0, timer: 0, spots: [] };
+const MF = Object.assign({ vol: 0, need: 0, off: 0, style: -1 }, store.get('fr_mapf', {}));
+let mapLibP = null;
+const mapCap = () => (innerWidth < 760 || (navigator.deviceMemory || 8) <= 4 ? 20000 : 45000);
+const mapFc = features => ({ type: 'FeatureCollection', features: features || [] });
+// The room the panel takes (the left side on a wide screen, the bottom sheet on a phone). The map
+// keeps it as its padding, so a pin it flies to lands in the open part of the map; fitBounds only
+// adds a margin on top of it.
+const mapPad = () => {
+  const panel = $('#mpanel'), wrap = $('#mwrap'), h = wrap ? wrap.offsetHeight : 600;
+  return innerWidth >= 760 ? { left: (panel ? panel.offsetWidth : 0) + 24, top: 0, right: 0, bottom: 0 }
+    : { left: 0, right: 0, top: 56, bottom: (wrap && wrap.classList.contains('min') ? 96 : Math.round(h * 0.44)) + 8 };
+};
+function mapSheet(min) {  // a phone's bottom sheet: pulled down to a strip, or up to show the panel
+  const wrap = $('#mwrap');
+  if (!wrap || wrap.classList.contains('min') === min) return;
+  wrap.classList.toggle('min', min);
+  if (MAPS.map) MAPS.map.easeTo({ padding: mapPad(), duration: 220 });
+}
+
+// ---------- files ----------
+function mapLib() {  // the map library and its styles, both in before the map is made
+  const add = (tag, attrs) => new Promise((res, rej) => {
+    const el = Object.assign(document.createElement(tag), attrs);
+    el.onload = res;
+    el.onerror = () => { el.remove(); rej(new Error('map library')); };
+    document.head.appendChild(el);
+  });
+  return mapLibP || (mapLibP = Promise.all([
+    add('link', { rel: 'stylesheet', href: ML_URL + '.css' }),
+    window.maplibregl ? null : add('script', { src: ML_URL + '.js' }),
+  ]).catch(e => { mapLibP = null; throw e; }));
+}
+async function mapFile(name) {
+  const r = await fetch(`m/${name}.json?v=${encodeURIComponent(MAPS.meta.v)}`);
+  if (!r.ok) throw new Error('http ' + r.status);
+  const got = await openBox(await r.json(), KEY);
+  if (!got.data) throw new Error('locked');
+  return got.data;
+}
+async function mapPoints() {  // where every pin is, biggest-first order, and a grid of 1-degree squares
+  const v = MAPS.meta.v;
+  if (MAPS.P && MAPS.P.v === v) return MAPS.P;
+  const raw = await mapFile('p'), n = raw.c.length;
+  const lat = new Float32Array(n), lon = new Float32Array(n), c = Uint16Array.from(raw.c), w = Int32Array.from(raw.w);
+  for (let i = 0, a = 0, b = 0; i < n; i++) { a += raw.lat[i]; b += raw.lon[i]; lat[i] = a / 1e4; lon[i] = b / 1e4; }
+  const order = new Uint32Array(n);
+  for (let i = 0; i < n; i++) order[i] = i;
+  order.sort((x, y) => w[y] - w[x] || x - y);
+  const cell = i => Math.min(179, Math.max(0, Math.floor(lat[i]) + 90)) * 360 + Math.min(359, Math.max(0, Math.floor(lon[i]) + 180));
+  const start = new Uint32Array(360 * 180 + 1);
+  for (let i = 0; i < n; i++) start[cell(i) + 1]++;
+  for (let k = 1; k < start.length; k++) start[k] += start[k - 1];
+  const at = start.slice(), idx = new Uint32Array(n);
+  for (let j = 0; j < n; j++) { const i = order[j]; idx[at[cell(i)]++] = i; }
+  return (MAPS.P = { v, n, lat, lon, c, w, order, start, idx });
+}
+function mapNames() {  // names, towns, cities and ZIP codes: search, labels and the list
+  const v = MAPS.meta.v;
+  if (MAPS.N && MAPS.N.v === v) return Promise.resolve(MAPS.N);
+  if (!MAPS.namesP || MAPS.namesP.v !== v) {
+    const p = mapFile('n').then(raw => (MAPS.N = { v, names: raw.n.split('\n'), low: null, towns: raw.towns, t: raw.t, zips: raw.zips, cities: raw.cities }));
+    p.catch(() => { MAPS.namesP = null; });
+    MAPS.namesP = { v, p };
+  }
+  return MAPS.namesP.p;
+}
+async function mapCardOf(i) {  // one strip of the country's cards, fetched the first time one is opened
+  const m = MAPS.meta, s = Math.floor(i / m.per), k = m.v + ':' + s;
+  if (!MAPS.cards[k]) {
+    MAPS.cards[k] = mapFile(String(s).padStart(2, '0'));
+    MAPS.cards[k].catch(() => { delete MAPS.cards[k]; });
+  }
+  return (await MAPS.cards[k])[i - s * m.per] || [];
+}
+
+// ---------- which pins to draw ----------
+const mapPass = c => ((c >> 3) & 3) >= MF.vol && (c & MF.need) === MF.need && !((MF.off >> (c & 7)) & 1);
+function mapQuery(b, cap) {  // the biggest pins inside b that pass the filters, and how many there are
+  const P = MAPS.P, out = [];
+  const x0 = Math.max(0, Math.floor(b.w) + 180), x1 = Math.min(359, Math.floor(b.e) + 180);
+  const y0 = Math.max(0, Math.floor(b.s) + 90), y1 = Math.min(179, Math.floor(b.n) + 90);
+  const inside = i => P.lat[i] >= b.s && P.lat[i] <= b.n && P.lon[i] >= b.w && P.lon[i] <= b.e && mapPass(P.c[i]);
+  let total = 0, count = 0;
+  for (let y = y0; y <= y1; y++) total += P.start[y * 360 + x1 + 1] - P.start[y * 360 + x0];
+  if (total > cap * 4) {  // most of the country: everything, biggest first
+    for (let j = 0; j < P.n; j++) { const i = P.order[j]; if (inside(i)) { count++; if (out.length < cap) out.push(i); } }
+    return { out, count };
+  }
+  for (let y = y0; y <= y1; y++) {
+    for (let j = P.start[y * 360 + x0]; j < P.start[y * 360 + x1 + 1]; j++) { const i = P.idx[j]; if (inside(i)) out.push(i); }
+  }
+  out.sort((a, c) => P.w[c] - P.w[a]);
+  count = out.length;
+  if (out.length > cap) out.length = cap;
+  return { out, count };
+}
+function mapDraw() {
+  const map = MAPS.map, P = MAPS.P;
+  if (!map || !P || !map.getSource('pins')) return;
+  const bb = map.getBounds(), B = MAPS.meta.bits;
+  const q = mapQuery({ w: Math.max(-180, bb.getWest()), e: Math.min(180, bb.getEast()), s: bb.getSouth(), n: bb.getNorth() }, mapCap());
+  const names = map.getZoom() >= 10.5 && MAPS.N ? MAPS.N.names : null;
+  const feats = new Array(q.out.length);
+  for (let j = 0; j < q.out.length; j++) {
+    const i = q.out[j], c = P.c[i], pr = { i, k: c & 7, z: (c >> 3) & 3, l: c & B.lead ? 1 : 0, h: c & B.hot ? 1 : 0, w: P.w[i] };
+    if (names) pr.n = names[i];
+    feats[j] = { type: 'Feature', geometry: { type: 'Point', coordinates: [P.lon[i], P.lat[i]] }, properties: pr };
+  }
+  map.getSource('pins').setData(mapFc(feats));
+  MAPS.view = q.out; MAPS.count = q.count;
+  const w = MAPS.meta.words, el = $('#minview');
+  el.hidden = false;
+  el.innerHTML = `<b>${q.count.toLocaleString()} ${esc(w.noun)} ${esc(w.inview)}</b>`
+    + (q.count > q.out.length ? `<span>${esc(w.drawn.replace('{n}', q.out.length.toLocaleString()))}</span>` : '');
+  mapList();
+}
+function mapLayers() {
+  const map = MAPS.map, m = MAPS.meta, dark = curStyle() === 0;
+  if (!map.getSource('pins')) map.addSource('pins', { type: 'geojson', data: mapFc(), buffer: 16, maxzoom: 14 });
+  if (!map.getSource('sel')) map.addSource('sel', { type: 'geojson', data: mapFc() });
+  const colors = ['match', ['get', 'k']];
+  m.kinds.forEach((k, i) => colors.push(i, k[1]));
+  colors.push('#cbd5e1');
+  map.addLayer({ id: 'halo', type: 'circle', source: 'pins', minzoom: 6, filter: ['==', ['get', 'h'], 1],
+    paint: { 'circle-color': '#ff3b30', 'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 7, 13, 15], 'circle-opacity': 0.22, 'circle-blur': 0.6 } });
+  const lead = ['==', ['get', 'l'], 1], hot = ['==', ['get', 'h'], 1];
+  const r = (a, b, c, d, h) => ['case', hot, h || a, ['match', ['get', 'z'], 3, a, 2, b, 1, c, d]];
+  map.addLayer({ id: 'pins', type: 'circle', source: 'pins', layout: { 'circle-sort-key': ['get', 'w'] }, paint: {
+    'circle-color': ['case', hot, '#ff3b30', colors],
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, r(2.6, 1.7, 1.15, 0.85, 1.7), 7, r(5, 3.4, 2.4, 1.8, 3.6), 12, r(9, 6.5, 5, 4), 16, r(13, 10, 8, 7)],
+    'circle-opacity': ['interpolate', ['linear'], ['zoom'], 3, r(0.95, 0.82, 0.62, 0.45), 9, 0.92],
+    'circle-blur': ['interpolate', ['linear'], ['zoom'], 3, 0.3, 9, 0.05],
+    'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 8, 0, 11, ['case', lead, 1.6, 0.6]],
+    'circle-stroke-color': ['case', lead, '#ffffff', 'rgba(0,0,0,.45)'] } });
+  map.addLayer({ id: 'names', type: 'symbol', source: 'pins', minzoom: 10.5, filter: ['has', 'n'], layout: {
+    'text-field': ['get', 'n'], 'text-font': ['Noto Sans Regular'], 'text-size': 11.5, 'text-offset': [0, 0.95], 'text-anchor': 'top',
+    'text-max-width': 10, 'symbol-sort-key': ['-', 0, ['get', 'w']], 'text-optional': true },
+    paint: { 'text-color': dark ? '#e8eef7' : '#1d2939', 'text-halo-color': dark ? 'rgba(6,8,12,.9)' : 'rgba(255,255,255,.95)', 'text-halo-width': 1.4 } });
+  map.addLayer({ id: 'sel', type: 'circle', source: 'sel', paint: { 'circle-radius': 12, 'circle-color': 'rgba(0,0,0,0)',
+    'circle-stroke-width': 2.5, 'circle-stroke-color': dark ? '#ffffff' : '#0b111c' } });
+  if (MAPS.sel >= 0) mapMark(MAPS.sel);
+}
+const curStyle = () => (MF.style >= 0 ? MF.style : document.documentElement.dataset.theme === 'light' ? 1 : 0);
+function mapMark(i) {
+  const s = MAPS.map && MAPS.map.getSource('sel'), P = MAPS.P;
+  if (s) s.setData(mapFc(i >= 0 ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: [P.lon[i], P.lat[i]] }, properties: {} }] : []));
+}
+
+// ---------- the panel ----------
+function mapRow(i) {
+  const m = MAPS.meta, N = MAPS.N, c = MAPS.P.c[i], hot = c & m.bits.hot;
+  return `<button class="mrow" data-i="${i}"><i style="background:${hot ? '#ff3b30' : m.kinds[c & 7][1]}"></i><span><b>${esc(N.names[i])}</b>`
+    + `<small>${esc(N.towns[N.t[i]] || '')} · ${esc(m.volume[(c >> 3) & 3])}</small></span>${hot ? `<em>${esc(m.words.hotchip)}</em>` : ''}</button>`;
+}
+function mapList() {
+  const box = $('#mlist'), w = MAPS.meta.words;
+  if (!box) return;
+  box.innerHTML = !MAPS.view.length ? `<div class="mfine">${esc(w.empty)}</div>`
+    : !MAPS.N ? `<div class="mfine">${esc(w.names)}</div>` : MAPS.view.slice(0, 30).map(mapRow).join('');
+}
+function mapPanel() {
+  const body = $('#mbody');
+  if (!body || MAPS.sel >= 0) return;
+  const m = MAPS.meta, w = m.words, c = m.counts, n = x => (+x || 0).toLocaleString();
+  body.innerHTML = `<div class="mbig num">${n(m.n)} <small>${esc(w.noun)}</small></div>
+    <div class="mstat"><b>${n(c.heavy)}</b> ${esc(w.heavy)} · <b>${n(c.steady)}</b> ${esc(w.steady)}<br><b>${n(c.phone)}</b> ${esc(w.phone)} · <b class="hotn">${n(c.hot)}</b> ${esc(w.hot)}</div>
+    <div class="seg">${w.vols.map(v => `<button data-vol="${v[1]}" class="${MF.vol === v[1] ? 'on' : ''}">${esc(v[0])}</button>`).join('')}</div>
+    <div class="mtog">${w.toggles.map(t => `<button class="pill${MF.need & t[1] ? ' on' : ''}" data-need="${t[1]}">${esc(t[0])}</button>`).join('')}</div>
+    <div class="mkinds">${m.kinds.map((k, i) => `<button class="mkind${(MF.off >> i) & 1 ? ' off' : ''}" data-kind="${i}"><i style="background:${k[1]}"></i><span>${esc(k[0])}</span><b class="num">${n(k[3])}</b></button>`).join('')}</div>
+    <div class="lbl mh">${esc(w.list)}</div><div class="mlist" id="mlist"></div>`;
+  mapList();
+}
+function mapCard(i, d) {
+  const m = MAPS.meta, w = m.words, N = MAPS.N, k = m.kinds[MAPS.P.c[i] & 7], name = N.names[i], town = N.towns[N.t[i]] || '';
+  const addr = d[0] || '', phone = d[1] || '', contact = d[2] || '', facts = d[5] || [], lead = (m.leads || {})[i];
+  const q = encodeURIComponent([name, addr || town].join(' '));
+  return `<div class="mcard"><button class="mback" data-back="1">${ic('back')}${esc(w.back)}</button>
+    <div class="mkline"><i style="background:${k[1]}"></i>${esc(k[0])}<span>· ${esc(k[2])}</span></div>
+    <h2>${esc(name)}</h2><div class="maddr">${esc(addr || town)}${d[6] ? `<span>${esc(w.approx)}</span>` : ''}</div>
+    <div class="chips">${chips(d[4])}</div>${d[3] ? `<div class="mind">${esc(d[3])}</div>` : ''}
+    ${facts.length ? `<div class="kv mfacts">${facts.map(f => `<div><b>${esc(f[0])}</b>${esc(f[1])}</div>`).join('')}</div>` : ''}
+    ${contact ? `<div class="mcontact"><span class="lbl">${esc(w.contact)}</span>${esc(contact)}</div>` : ''}
+    <div class="acts">${phone ? `<a class="btn sm" href="tel:${esc(digits(phone))}">${ic('phone')}${esc(w.call)} ${esc(phone)}</a>` : ''}
+      ${lead ? `<button class="btn sm${phone ? ' ghost' : ''}" data-lead="${i}">${esc(w.open)}</button>` : ''}
+      <a class="btn sm ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q}">${esc(w.maps)}</a>
+      <a class="btn sm ghost" target="_blank" rel="noopener" href="https://www.google.com/search?q=${encodeURIComponent(name + ' ' + town)}">${esc(w.web)}</a></div></div>`;
+}
+async function mapSelect(i, fly) {
+  const P = MAPS.P, w = MAPS.meta.words, gen = MAPS.gen;
+  if (!P || !MAPS.map || i < 0 || i >= P.n) return;
+  MAPS.sel = i;
+  mapMark(i);
+  const wrap = $('#mwrap'), opened = wrap.classList.contains('min');  // a phone's sheet comes up for the card
+  wrap.classList.remove('min');
+  if (fly) MAPS.map.flyTo({ center: [P.lon[i], P.lat[i]], zoom: Math.max(MAPS.map.getZoom(), 13), speed: 1.6, padding: mapPad() });
+  else if (opened) MAPS.map.easeTo({ padding: mapPad(), duration: 220 });
+  $('#mbody').innerHTML = `<div class="mfine">${esc(w.loading)}</div>`;
+  let d;
+  try { d = (await Promise.all([mapCardOf(i), mapNames()]))[0]; } catch (e) {
+    if (MAPS.sel === i && gen === MAPS.gen) $('#mbody').innerHTML = `<div class="mfine">${esc(w.failed)}</div>`;
+    return;
+  }
+  if (MAPS.sel !== i || gen !== MAPS.gen) return;
+  $('#mbody').innerHTML = mapCard(i, d);
+  $('#mbody').scrollTop = 0;
+}
+
+// ---------- search: places first, then companies, biggest first ----------
+function mapPlaces(text) {
+  const N = MAPS.N, out = [], up = text.toUpperCase().replace(/[.,]/g, ' ').replace(/\s+/g, ' ').trim();
+  MAPS.meta.states.forEach(s => { if (s[0] === up || s[1].toUpperCase() === up) out.push({ label: s[1], bbox: s.slice(2) }); });
+  if (/^\d{5}$/.test(up)) {
+    const z = N.zips.find(r => r[0] === +up);
+    if (z) out.push({ label: up, center: [z[2] / 1e3, z[1] / 1e3], zoom: 12 });
+  }
+  const m = up.match(/^(.+) ([A-Z]{2})$/), city = m && MAPS.meta.states.some(s => s[0] === m[2]) ? m[1] : up, st = city === up ? '' : m[2];
+  for (const c of N.cities) {
+    if (c[0].toUpperCase() === city && (!st || c[1] === st)) out.push({ label: `${c[0]}, ${c[1]}`, center: [c[3] / 1e3, c[2] / 1e3], zoom: 11.5 });
+    if (out.length >= 4) break;
+  }
+  return out;
+}
+async function mapSearch(text) {
+  const res = $('#mres'), w = MAPS.meta.words;
+  if (text.length < 2) { res.hidden = true; return; }
+  res.hidden = false;
+  if (!MAPS.N) {
+    res.innerHTML = `<div class="mfine">${esc(w.names)}</div>`;
+    try { await mapNames(); } catch (e) { res.innerHTML = `<div class="mfine">${esc(w.failed)}</div>`; return; }
+  }
+  if (!$('#mq') || $('#mq').value.trim() !== text) return;
+  const N = MAPS.N, P = MAPS.P, low = N.low || (N.low = N.names.map(s => s.toLowerCase())), t = text.toLowerCase(), hits = [];
+  for (let j = 0; j < P.n && hits.length < 25; j++) { const i = P.order[j]; if (low[i].includes(t)) hits.push(i); }
+  MAPS.spots = mapPlaces(text);
+  res.innerHTML = MAPS.spots.map((s, x) => `<button class="mrow" data-go="${x}">${ic('pin')}<span><b>${esc(s.label)}</b><small>${esc(w.go)}</small></span></button>`).join('')
+    + hits.map(mapRow).join('') || `<div class="mfine">${esc(w.none)}</div>`;
+}
+
+// ---------- wiring ----------
+function mapFilters() { store.set('fr_mapf', MF); mapPanel(); mapDraw(); }
+function mapStylesBar() { document.querySelectorAll('#mstyles button').forEach(b => b.classList.toggle('on', +b.dataset.style === curStyle())); }
+function mapClickPanel(e) {
+  const b = e.target.closest('button');
+  if (!b || !MAPS.map || !MAPS.P) return;
+  const d = b.dataset;
+  if (d.style != null) { MF.style = +d.style; store.set('fr_mapf', MF); mapStylesBar(); MAPS.map.setStyle(MAP_STYLES[MF.style], { diff: false }); }
+  else if (d.vol != null) { MF.vol = +d.vol; mapFilters(); }
+  else if (d.need != null) { MF.need ^= +d.need; mapFilters(); }
+  else if (d.kind != null) { const bit = 1 << +d.kind; if ((MF.off ^ bit) !== 127) MF.off ^= bit; mapFilters(); }
+  else if (d.go != null) {
+    const s = MAPS.spots[+d.go];
+    $('#mres').hidden = true;
+    if (s && s.bbox) MAPS.map.fitBounds([[s.bbox[0], s.bbox[1]], [s.bbox[2], s.bbox[3]]], { padding: 30, speed: 1.6 });
+    else if (s) MAPS.map.flyTo({ center: s.center, zoom: s.zoom, speed: 1.6 });
+  } else if (d.i != null) { $('#mres').hidden = true; mapSelect(+d.i, true); }
+  else if (d.back) { MAPS.sel = -1; mapMark(-1); mapPanel(); }
+  else if (d.lead != null) { const k = (MAPS.meta.leads || {})[d.lead]; if (k) go(TAB, k); }
+  else if (d.grab) mapSheet(!$('#mwrap').classList.contains('min'));
+}
+function mapClick(e) {
+  const p = e.point, map = MAPS.map, res = $('#mres');
+  if (res && !res.hidden) { res.hidden = true; const q = $('#mq'); if (q) q.blur(); }
+  const fs = map.queryRenderedFeatures([[p.x - 9, p.y - 9], [p.x + 9, p.y + 9]], { layers: ['pins'] });
+  if (!fs.length) return;
+  const dist = f => { const q = map.project(f.geometry.coordinates); return Math.hypot(q.x - p.x, q.y - p.y); };
+  fs.sort((a, b) => dist(a) - dist(b) || b.properties.w - a.properties.w);
+  mapSelect(fs[0].properties.i, false);
+}
+function fitMap() {
+  const el = $('#mwrap');
+  if (!el) return;
+  el.style.height = Math.max(380, innerHeight - el.getBoundingClientRect().top - window.scrollY) + 'px';
+  if (MAPS.map) { MAPS.map.resize(); MAPS.map.setPadding(mapPad()); }
+}
+function mapStop() {
+  MAPS.gen++;
+  clearTimeout(MAPS.timer);
+  removeEventListener('resize', fitMap);
+  if (MAPS.map) { try { MAPS.map.remove(); } catch (e) { /* already gone */ } }
+  MAPS.map = null; MAPS.sel = -1; MAPS.view = [];
+}
+async function renderMapTab(meta) {
+  mapStop();
+  MAPS.meta = meta;
+  const gen = MAPS.gen, w = meta.words;
+  $('#main').innerHTML = `<div class="mwrap" id="mwrap"><div class="mcanvas" id="mcanvas"></div>
+    <aside class="mpanel" id="mpanel"><div class="msearch"><label class="search">${ic('search')}<input id="mq" type="search" placeholder="${esc(w.search)}" autocomplete="off" spellcheck="false" aria-label="${esc(w.search)}"></label>
+      <div class="mres" id="mres" hidden></div></div>
+      <div class="msheet" id="msheet"><button class="mgrab" data-grab="1" aria-label="${esc(w.grab)}"></button><div class="mbody" id="mbody"><div class="mfine">${esc(w.loading)}</div></div></div></aside>
+    <div class="mstyles" id="mstyles">${w.styles.map((s, i) => `<button data-style="${i}">${esc(s)}</button>`).join('')}</div>
+    <div class="minview" id="minview" hidden></div></div>`;
+  fitMap();
+  addEventListener('resize', fitMap);
+  mapStylesBar();
+  $('#mwrap').addEventListener('click', mapClickPanel);
+  let timer = 0;
+  const q = $('#mq');
+  q.oninput = () => { clearTimeout(timer); timer = setTimeout(() => mapSearch(q.value.trim()), 180); };
+  q.onkeydown = e => {
+    if (e.key === 'Enter') { const b = $('#mres').querySelector('button'); if (b) b.click(); }
+    if (e.key === 'Escape') { $('#mres').hidden = true; q.blur(); }
+  };
+  try { await Promise.all([mapLib(), mapPoints()]); } catch (e) {
+    if (gen === MAPS.gen) $('#mbody').innerHTML = `<div class="mfine">${esc(w.failed)}</div>`;
+    return;
+  }
+  if (gen !== MAPS.gen || !$('#mcanvas')) return;
+  maplibregl.setWorkerCount(Math.max(2, Math.min(4, (navigator.hardwareConcurrency || 4) >> 1)));
+  const h = meta.home, map = MAPS.map = new maplibregl.Map({ container: 'mcanvas', style: MAP_STYLES[curStyle()],
+    center: [(h[0] + h[2]) / 2, (h[1] + h[3]) / 2], zoom: 3, minZoom: 2, maxZoom: 18,
+    dragRotate: false, pitchWithRotate: false, touchPitch: false, attributionControl: { compact: true } });
+  map.setPadding(mapPad());
+  map.fitBounds([[h[0], h[1]], [h[2], h[3]]], { padding: 24, duration: 0 });
+  map.touchZoomRotate.disableRotation();
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+  map.addControl(new maplibregl.GeolocateControl({ fitBoundsOptions: { maxZoom: 11 } }), 'bottom-right');
+  map.on('style.load', () => { mapLayers(); mapDraw(); });
+  map.on('moveend', () => { clearTimeout(MAPS.timer); MAPS.timer = setTimeout(mapDraw, 90); });
+  map.on('click', mapClick);
+  map.on('mousemove', e => {
+    const p = e.point;
+    map.getCanvas().style.cursor = map.getLayer('pins') && map.queryRenderedFeatures([[p.x - 5, p.y - 5], [p.x + 5, p.y + 5]], { layers: ['pins'] }).length ? 'pointer' : '';
+  });
+  mapPanel();
+  const c = navigator.connection;
+  if (!(c && c.saveData)) mapNames().then(() => { if (gen === MAPS.gen) mapDraw(); }).catch(() => { /* asked for again on search */ });
+}
+</script>
+<script>
+'use strict';
+// Unlocking, getting around, searching every list, and staying up to date.
+let TAB = '', shownTab = null, BOX = null, lastCheck = Date.now();
+const WRONG = 'Wrong password. Check for typos and extra spaces.';
+const CANT_UNPACK = 'The password is right, but this browser could not unpack the data. Update your phone or try Chrome.';
+const OFFLINE = "Couldn't load the site. Check your connection and try again.";
+const rawGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+// ---------- where you are: #tab or #tab:lead (so the phone's Back button works) ----------
+function parseHash() {
+  let h = location.hash.slice(1);
+  try { h = decodeURIComponent(h); } catch (e) { /* a stray % in the address */ }
+  if (h.startsWith('lead=')) return [TAB || DATA.tabs[0].id, h.slice(5)];  // links from the earlier version of the site
+  const i = h.indexOf(':'), tab = i < 0 ? h : h.slice(0, i);
+  return [DATA.tabs.some(t => t.id === tab) ? tab : DATA.tabs[0].id, i < 0 ? null : h.slice(i + 1)];
+}
+function route() {
+  if (!DATA) return;
+  const [tab, key] = parseHash();
+  if (tab !== shownTab) {
+    if (shownTab && tabOf(shownTab).map) mapStop();
+    TAB = shownTab = tab;
+    const t = tabOf(tab);
+    $('#app').classList.toggle('mapon', !!t.map);
+    renderTabs();
+    if (t.map) renderMapTab(t.map); else if (t.home) renderHome(tab); else renderList(tab);
+    window.scrollTo(0, 0);
+  }
+  if (key !== LEAD) showLead(key);
+}
+function go(tab, key) {
+  const h = '#' + tab + (key ? ':' + encodeURIComponent(key) : '');
+  if (key && LEAD && tab === TAB) history.replaceState({ lead: 1 }, '', h);  // lead to lead: Back still returns to the list
+  else history.pushState(key ? { lead: 1 } : null, '', h);
+  route();
+}
+function closeLead() {
+  if (history.state && history.state.lead) history.back();
+  else { history.replaceState(null, '', '#' + TAB); route(); }
+}
+window.addEventListener('popstate', route);
+window.addEventListener('hashchange', route);
+
+// ---------- status, theme, menu ----------
+function setStatus() {
+  const made = new Date(DATA.generated), old = Math.floor((Date.now() - made) / 864e5);
+  const when = made.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const stale = old >= 2 || !navigator.onLine;
+  $('#dot').classList.toggle('off', stale);
+  const same = made.toDateString() === new Date().toDateString();
+  const brief = same ? made.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : fmtDay(DATA.generated, 'md');
+  $('#updated').innerHTML = !navigator.onLine ? `Offline<span class="wide"> · data from ${esc(when)}</span><span class="narrow"> · ${esc(brief)}</span>`
+    : old >= 2 ? `${old} days old<span class="wide"> · ${esc(when)}</span>` : `Updated <span class="wide">${esc(when)}</span><span class="narrow">${esc(brief)}</span>`;
+  $('#foot').innerHTML = `${esc(DATA.company || 'Freight Radar')}<br>Data from ${esc(when)}`;
+}
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('fr_theme', t); } catch (e) { /* private mode */ }
+  $('meta[name=theme-color]').content = t === 'light' ? '#f3f4f7' : '#06080c';
+}
+function closeMenu() { const m = $('#menu'); if (m) m.remove(); }
+function openMenu() {
+  if ($('#menu')) return closeMenu();
+  const light = document.documentElement.dataset.theme === 'light';
+  document.body.insertAdjacentHTML('beforeend', `<div id="menu" role="menu">
+    <button data-m="theme" role="menuitem">${ic(light ? 'moon' : 'sun')}${light ? 'Dark mode' : 'Light mode'}</button>
+    <button data-m="check" role="menuitem">${ic('refresh')}Check for new data</button>
+    ${DATA.shards ? `<button data-m="save" role="menuitem">${ic('check')}Save all leads for offline</button>` : ''}
+    <button data-m="lock" role="menuitem">${ic('lock')}Lock this device</button>
+    <div class="note">To use it like an app: tap Share, then Add to Home Screen.<br>"Called" marks stay on this device only.</div></div>`);
+  $('#menu').onclick = e => {
+    const b = e.target.closest('[data-m]');
+    if (!b) return;
+    closeMenu();
+    if (b.dataset.m === 'theme') setTheme(light ? 'dark' : 'light');
+    else if (b.dataset.m === 'check') checkNew(true);
+    else if (b.dataset.m === 'save') loadAll((n, of) => toast(n < of ? `Saving ${n} of ${of}` : 'Saved. Every lead opens offline now.')).catch(() => toast("Couldn't finish. Check your connection."));
+    else lockDevice();
+  };
+}
+async function lockDevice() {
+  await keyDrop();
+  store.del('fr_pw');
+  history.replaceState(null, '', location.pathname);
+  location.reload();
+}
+
+// ---------- search across every list ----------
+function closeFind() { ['#find', '#scrim'].forEach(s => { const el = $(s); if (el) el.remove(); }); }
+function openFind() {
+  if ($('#find') || !DATA) return;
+  const seen = new Set(), index = [];
+  DATA.tabs.forEach(t => rowsOf(t.id).forEach(m => { if (!seen.has(m.k)) { seen.add(m.k); index.push({ m, tab: t }); } }));
+  document.body.insertAdjacentHTML('beforeend', `<div class="scrim" id="scrim"></div><div id="find" role="dialog" aria-label="Search every list">
+    <div class="fbar">${ic('search')}<input id="fq" type="search" placeholder="Search ${index.length.toLocaleString()} leads" autocomplete="off" aria-label="Search every list"><button class="iconbtn" id="fx" aria-label="Close search">${ic('x')}</button></div>
+    <div class="res" id="fres"><div class="empty">Type a company, city or state.</div></div></div>`);
+  const input = $('#fq'), res = $('#fres');
+  let hits = [], at = 0;
+  const mark = (name, q) => { const i = name.toLowerCase().indexOf(q); return i < 0 ? esc(name) : esc(name.slice(0, i)) + '<mark>' + esc(name.slice(i, i + q.length)) + '</mark>' + esc(name.slice(i + q.length)); };
+  const paint = () => res.querySelectorAll('.hit').forEach((el, i) => el.classList.toggle('on', i === at));
+  const pick = i => { const h = hits[i]; if (h) { closeFind(); go(h.tab.id, h.m.k); } };
+  input.oninput = () => {
+    const q = input.value.trim().toLowerCase();
+    at = 0;
+    if (!q) { hits = []; res.innerHTML = '<div class="empty">Type a company, city or state.</div>'; return; }
+    hits = index.filter(x => x.m.find.includes(q)).sort((a, b) => {
+      const an = a.m.n.toLowerCase(), bn = b.m.n.toLowerCase();
+      return (bn.startsWith(q) - an.startsWith(q)) || (bn.includes(q) - an.includes(q)) || an.localeCompare(bn);
+    }).slice(0, 40);
+    res.innerHTML = hits.length ? hits.map((h, i) => `<div class="hit${i ? '' : ' on'}" data-i="${i}"><div style="min-width:0"><div class="nm">${mark(h.m.n, q)}</div><div class="meta">${esc(h.m.m || '')}</div></div>${chip([h.tab.label, ''])}</div>`).join('')
+      : '<div class="empty">No lead matches that.</div>';
+  };
+  input.onkeydown = e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); at = Math.max(0, Math.min(hits.length - 1, at + (e.key === 'ArrowDown' ? 1 : -1))); paint(); const el = res.querySelector('.hit.on'); if (el) el.scrollIntoView({ block: 'nearest' }); }
+    else if (e.key === 'Enter') pick(at);
+  };
+  res.onclick = e => { const el = e.target.closest('.hit'); if (el) pick(+el.dataset.i); };
+  $('#fx').onclick = $('#scrim').onclick = closeFind;
+  input.focus();
+}
+
+// ---------- new data without closing the page ----------
+function keepOnly() {
+  const map = (DATA.tabs.find(t => t.map) || {}).map;
+  if (navigator.serviceWorker) navigator.serviceWorker.ready.then(reg => { if (reg.active) reg.active.postMessage({ keep: BOX_IV, map: map ? map.v : '' }); }).catch(() => { /* no offline copy */ });
+}
+async function checkNew(manual) {
+  lastCheck = Date.now();
+  let box;
+  try { box = await fetchCore(); } catch (e) { if (manual) toast("Couldn't reach the site. Check your connection."); setStatus(); return; }
+  if (box.iv === BOX_IV) { setStatus(); if (manual) toast('You have the latest data'); return; }
+  const got = await openBox(box, KEY);
+  if (!got.data) { if (manual) toast('The password changed. Lock this device and sign in again.'); return; }
+  const apply = () => {
+    useData(box, KEY, got.data);
+    shownTab = null; LEAD = null;
+    setStatus(); route(); warm(); keepOnly();
+    toast('Updated');
+  };
+  if (manual) apply(); else toast('New data is ready. Tap to load.', apply);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && DATA && Date.now() - lastCheck > 15 * 60e3) checkNew(false); });
+window.addEventListener('online', () => DATA && setStatus());
+window.addEventListener('offline', () => DATA && setStatus());
+
+// ---------- unlocking ----------
+function enter(box, key, data) {
+  useData(box, key, data);
+  $('#lock').hidden = true;
+  $('#app').hidden = false;
+  setStatus(); route(); warm(); keepOnly();
+}
+async function tryPassword(box, typed, remember) {
+  const pw = String(typed || '').trim().replace(/^[`'"*\s]+|[`'"*\s]+$/g, '');
+  for (const p of uniq([pw, pw.toLowerCase()])) {  // phones like to capitalize the first letter
+    const key = await deriveKey(p, box), got = await openBox(box, key);
+    if (got.bad === 'unpack') return CANT_UNPACK;
+    if (!got.data) continue;
+    if (remember && await keySave({ key, salt: box.salt })) store.del('fr_pw');
+    else if (remember) { try { localStorage.setItem('fr_pw', p); } catch (e) { /* stay signed out */ } }
+    else { await keyDrop(); store.del('fr_pw'); }
+    enter(box, key, got.data);
+    return '';
+  }
+  return WRONG;
+}
+let CORE = null;  // the first data file, downloading (shared by the lock screen and the form)
+const core = () => CORE || (CORE = fetchCore().catch(e => { CORE = null; throw e; }));
+async function start() {
+  const form = $('#f'), err = $('#err'), wait = $('#wait');
+  const ask = msg => { wait.hidden = true; form.hidden = false; err.textContent = msg || ''; err.classList.remove('info'); };
+  form.onsubmit = async e => {
+    e.preventDefault();
+    err.classList.add('info'); err.textContent = 'Opening...';
+    $('#go').disabled = true;
+    try {
+      BOX = await core();
+      const problem = await tryPassword(BOX, $('#pw').value, $('#remember').checked);
+      if (problem) { ask(problem); $('#pw').select(); }
+    } catch (e2) { ask(OFFLINE); }
+    $('#go').disabled = false;
+  };
+  if (!window.crypto || !crypto.subtle) return ask("This browser can't open locked pages. Open the link in Safari or Chrome, not inside another app.");
+  core().catch(() => { /* asked for again when the form is sent */ });  // start downloading right away
+  const saved = await keyLoad(), old = rawGet('fr_pw');  // old: signed in on the earlier version of the site
+  if (!(saved && saved.key) && !old) return ask('');  // a new device: the password box shows at once
+  try { BOX = await core(); } catch (e) { return ask(OFFLINE); }
+  if (saved && saved.key && saved.salt === BOX.salt) {
+    const got = await openBox(BOX, saved.key);
+    if (got.data) return enter(BOX, saved.key, got.data);
+    if (got.bad === 'unpack') return ask(CANT_UNPACK);
+    await keyDrop();  // the password changed since this device signed in
+  }
+  if (old && !(await tryPassword(BOX, old.replace(/^"|"$/g, ''), true))) return;
+  ask('');
+}
+
+// ---------- wiring ----------
+$('#findbtn').innerHTML = ic('search');
+$('#menubtn').innerHTML = ic('dots');
+$('#findbtn').onclick = openFind;
+$('#menubtn').onclick = e => { e.stopPropagation(); openMenu(); };
+document.addEventListener('click', e => { if ($('#menu') && !e.target.closest('#menu')) closeMenu(); });
+const tabClick = e => { const b = e.target.closest('[data-t]'); if (b) go(b.dataset.t); };
+$('#tabs').onclick = tabClick;
+$('#nav').onclick = tabClick;
+$('#main').addEventListener('click', e => {
+  if (e.target.closest('a.call, .more')) return;
+  const st = e.target.closest('[data-st]');
+  if (st) { filtersFor(st.dataset.for).st = st.dataset.st; return go(st.dataset.for); }
+  const t = e.target.closest('[data-t]');
+  if (t) return go(t.dataset.t);
+  const row = e.target.closest('.row');
+  if (row) go(TAB, row.dataset.k);
+});
+$('#main').addEventListener('pointerdown', e => { const row = e.target.closest('.row'); if (row && DATA) getLead(row.dataset.k).catch(() => { /* shown when it opens */ }); }, { passive: true });
+$('#pane').addEventListener('click', paneClick);
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''));
+  if (e.key === 'Escape') { if ($('#find')) closeFind(); else if ($('#menu')) closeMenu(); else if (LEAD) closeLead(); }
+  else if ((e.key === '/' && !typing) || (e.key === 'k' && (e.metaKey || e.ctrlKey))) { e.preventDefault(); openFind(); }
+  else if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.row, .feat')) { e.preventDefault(); e.target.click(); }
+});
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => { /* the site works without an offline copy */ });
+}
+blankPane();
+start();
+</script>
+</body>
+</html>
